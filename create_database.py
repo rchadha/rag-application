@@ -19,11 +19,11 @@ DATA_PATH = "data"
 CHROMA_PATH = "chroma"
 
 def main():
-    generate_data_store()
+    indexing()
 
-def generate_data_store():
+def indexing():
     documents = load_documents()
-    chunks = split_text(documents)
+    chunks = split_documents_into_chunks(documents)
     save_to_vector_db(chunks)
 
 
@@ -33,7 +33,7 @@ def load_documents():
     documents = loader.load()
     return documents
 
-def split_text(documents: list[Document]):
+def split_documents_into_chunks(documents: list[Document]):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
         chunk_overlap=100,

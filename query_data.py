@@ -29,12 +29,14 @@ def main():
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
 
     # Search the DB
-    results = db.similarity_search(query_text, k=3)
-    if len(results) == 0:
+    results = db.similarity_search_with_relevance_scores(query_text, k=3)
+    # Print the results
+    print("Results:", results[0])
+    if len(results) == 0 or results[0][1] < 0.7:
         print("Unable to find matching results")
         return
     
-    context_text = "\n\n---\n\n".join([doc.page_content for doc in results])
+    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
     promt_template = ChatPromptTemplate.from_template(PROMPT)
     prompt = promt_template.format(context=context_text, question=query_text)
     print(f"Prompt: {prompt}")
@@ -42,7 +44,7 @@ def main():
     model = ChatOpenAI()
     response = model(prompt)
 
-    sources = [doc.metadata["source"] for doc in results]
+    sources = [doc.metadata["source"] for doc, _score in results]
     formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
     print(formatted_response)
 
