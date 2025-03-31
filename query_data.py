@@ -18,11 +18,11 @@ Answer the question based on the following context:
 Answer the question based on the above context: {question}
 """
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", type=str, help="The text to query")
-    args = parser.parse_args()
-    query_text = args.query_text
+def query_database(query_text: str):
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("query_text", type=str, help="The text to query")
+    # args = parser.parse_args()
+    # query_text = args.query_text
 
     # Prepare the DB
     embedding_function = OpenAIEmbeddings()
@@ -41,12 +41,20 @@ def main():
     prompt = promt_template.format(context=context_text, question=query_text)
     print(f"Prompt: {prompt}")
 
+    # Get the response from the model
     model = ChatOpenAI()
     response = model(prompt)
 
-    sources = [doc.metadata["source"] for doc, _score in results]
-    formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
-    print(formatted_response)
+    # Extract the text content from AIMessage object
+    response_text = response.content if hasattr(response, 'content') else response
 
-if __name__ == "__main__":
-    main()
+    sources = [doc.metadata["source"] for doc, _score in results]
+    return {
+        "response": response_text,
+        "sources": sources
+    }
+    # formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
+    # print(formatted_response)
+
+# if __name__ == "__main__":
+#     main()
