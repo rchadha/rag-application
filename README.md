@@ -21,3 +21,19 @@ deactivate
 ```
 rm -rf rag-application
 ```
+
+### Install packages
+```
+pip install -r requirements.txt
+```
+
+### Create Vector DB
+```
+python create_database.py
+```
+
+### Query 
+```
+python query_data.py "What is AWS Lambda?"
+```
+
