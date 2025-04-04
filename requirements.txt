@@ -12,3 +12,4 @@ openai # For embeddings
 tiktoken  # For embeddings 
 nltk # For embeddings
 flask
+flask-cors

@@ -31,28 +31,28 @@ def query_database(query_text: str):
     # Search the DB
     results = db.similarity_search_with_relevance_scores(query_text, k=3)
     # Print the results
-    print("Results:", results[0])
+    # print("Results:", results[0])
     if len(results) == 0 or results[0][1] < 0.7:
         print("Unable to find matching results")
         return
     
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    promt_template = ChatPromptTemplate.from_template(PROMPT)
-    prompt = promt_template.format(context=context_text, question=query_text)
-    print(f"Prompt: {prompt}")
+    # context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    # promt_template = ChatPromptTemplate.from_template(PROMPT)
+    # prompt = promt_template.format(context=context_text, question=query_text)
+    # print(f"Prompt: {prompt}")
 
-    # Get the response from the model
-    model = ChatOpenAI()
-    response = model(prompt)
+    # # Get the response from the model
+    # model = ChatOpenAI()
+    # response = model(prompt)
 
-    # Extract the text content from AIMessage object
-    response_text = response.content if hasattr(response, 'content') else response
+    # # Extract the text content from AIMessage object
+    # response_text = response.content if hasattr(response, 'content') else response
 
-    sources = [doc.metadata["source"] for doc, _score in results]
-    return {
-        "response": response_text,
-        "sources": sources
-    }
+    # sources = [doc.metadata["source"] for doc, _score in results]
+    # return {
+    #     "response": response_text,
+    #     "sources": sources
+    # }
     # formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
     # print(formatted_response)
 

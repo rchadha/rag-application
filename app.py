@@ -1,7 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from query_data import query_database
 
 app = Flask(__name__)
+CORS(app) # Enable CORS for all routes
+
 @app.route('/query', methods=['POST'])
 def query():
     data = request.get_json()
@@ -17,5 +20,5 @@ def query():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='0.0.0.0', port=3001, debug=True)
 
