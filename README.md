@@ -37,3 +37,13 @@ python create_database.py
 python query_data.py "What is AWS Lambda?"
 ```
 
+### Run Flask App
+```
+# Create venv
+python3 -m venv rag-application
+# Activate
+source rag-application/bin/activate
+# Run Flask App
+python app.py
+
+```
