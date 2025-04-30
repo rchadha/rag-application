@@ -18,11 +18,12 @@ Answer the question based on the following context:
 Answer the question based on the above context: {question}
 """
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", type=str, help="The text to query")
-    args = parser.parse_args()
-    query_text = args.query_text
+def query_database(query_text: str):
+    print(f"Querying the database with: {query_text}")
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("query_text", type=str, help="The text to query")
+    # args = parser.parse_args()
+    # query_text = args.query_text
 
     # Prepare the DB
     embedding_function = OpenAIEmbeddings()
@@ -37,16 +38,28 @@ def main():
         return
     
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    # Prepare the context and prompt
+    context_text = "\n\n---\n\n".join(
+        [" ".join(doc.page_content) if isinstance(doc.page_content, list) else doc.page_content for doc, _score in results]
+    )
     promt_template = ChatPromptTemplate.from_template(PROMPT)
     prompt = promt_template.format(context=context_text, question=query_text)
-    print(f"Prompt: {prompt}")
+    # print(f"Prompt: {prompt}")
 
+    # # Get the response from the model
     model = ChatOpenAI()
-    response = model(prompt)
+    response = model.invoke(prompt)
+
+    # Extract the text content from AIMessage object
+    response_text = response.content if hasattr(response, 'content') else response
 
     sources = [doc.metadata["source"] for doc, _score in results]
-    formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
-    print(formatted_response)
+    return {
+        "response": response_text,
+        "sources": sources
+    }
+    # formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
+    # print(formatted_response)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
