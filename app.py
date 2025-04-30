@@ -8,6 +8,7 @@ CORS(app) # Enable CORS for all routes
 @app.route('/query', methods=['POST'])
 def query():
     data = request.get_json()
+    print(f"Received data: {data}")
     if not data or 'query' not in data:
         return jsonify({'error': 'Invalid input'}), 400
 

@@ -44,11 +44,11 @@ def query_database(query_text: str):
     )
     promt_template = ChatPromptTemplate.from_template(PROMPT)
     prompt = promt_template.format(context=context_text, question=query_text)
-    print(f"Prompt: {prompt}")
+    # print(f"Prompt: {prompt}")
 
     # # Get the response from the model
     model = ChatOpenAI()
-    response = model(prompt)
+    response = model.invoke(prompt)
 
     # Extract the text content from AIMessage object
     response_text = response.content if hasattr(response, 'content') else response
