@@ -14,9 +14,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Step 1: Sentences
 sentences = [
-    "Paris is the capital of France.",
-    "Apples are a type of fruit that grow on trees.",
-    
+    "cat",
+    "kitten",
+    "dog",
+    "houses"
 ]
 
 # Step 2: Generate embeddings
@@ -35,8 +36,8 @@ reduced = tsne.fit_transform(embedding_array)
 
 # Step 5: Plot
 plt.figure(figsize=(7, 7))
-colors = ['blue', 'green', 'red']
-labels = ['Sentence 1', 'Sentence 2']
+colors = ['red', 'green', 'blue', 'gray']
+labels = ['cat', 'kitten', 'dog', 'houses']
 
 for i in range(len(sentences)):
     plt.scatter(reduced[i, 0], reduced[i, 1], color=colors[i], label=labels[i])

@@ -2,6 +2,7 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_chroma import Chroma
 import openai 
 from dotenv import load_dotenv
@@ -26,8 +27,14 @@ def indexing():
     chunks = split_documents_into_chunks(documents)
     save_to_vector_db(chunks)
 
-
 def load_documents():
+    print(f"Loading documents from: {DATA_PATH}")
+    loader = DirectoryLoader(DATA_PATH, glob="*.pdf", loader_cls=PyPDFLoader)
+    documents = loader.load()
+    print(f"Loaded {len(documents)} documents")
+    return documents
+
+def load_documents_md():
     print(DATA_PATH)
     loader = DirectoryLoader(DATA_PATH, glob="*.md")
     documents = loader.load()
@@ -35,7 +42,7 @@ def load_documents():
 
 def split_documents_into_chunks(documents: list[Document]):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
+        chunk_size=300, # each chunk 300 characters
         chunk_overlap=100,
         length_function=len,
         add_start_index=True

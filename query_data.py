@@ -12,14 +12,14 @@ load_dotenv()
 CHROMA_PATH = "chroma"
 
 PROMPT = """
-Answer the question based on the following context:
+Answer the question based only on the following context:
 {context}
 
 Answer the question based on the above context: {question}
 """
 
 def query_database(query_text: str):
-    print(f"Querying the database with: {query_text}")
+    print(f"Querying Vector DB with Query: {query_text}")
     # parser = argparse.ArgumentParser()
     # parser.add_argument("query_text", type=str, help="The text to query")
     # args = parser.parse_args()
@@ -32,12 +32,14 @@ def query_database(query_text: str):
     # Search the DB
     results = db.similarity_search_with_relevance_scores(query_text, k=3)
     # Print the results
-    print("Results:", results[0])
+    # print("Results:", results[0])
     if len(results) == 0 or results[0][1] < 0.7:
         print("Unable to find matching results")
         return
     
+    
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    print (f"Context: {context_text}")
     # Prepare the context and prompt
     context_text = "\n\n---\n\n".join(
         [" ".join(doc.page_content) if isinstance(doc.page_content, list) else doc.page_content for doc, _score in results]
