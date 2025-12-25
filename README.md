@@ -47,3 +47,10 @@ source rag-application/bin/activate
 python app.py
 
 ```
+
+### Demo
+What is AWS Lambda?
+What programming languages does it support?
+Is it free to use AWS Lambda?
+Is AWS Lambda deployed on EC2?
+What is serverless land?
