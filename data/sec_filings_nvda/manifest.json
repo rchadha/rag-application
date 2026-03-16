@@ -1,0 +1,145 @@
+[
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2026-03-06",
+    "accession_number": "0001045810-26-000024",
+    "primary_document": "nvda-20260302.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000024/nvda-20260302.htm",
+    "output_file": "sec_filings_nvda/2026-03-06_8-K_0001045810-26-000024.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "10-K",
+    "filing_date": "2026-02-25",
+    "accession_number": "0001045810-26-000021",
+    "primary_document": "nvda-20260125.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000021/nvda-20260125.htm",
+    "output_file": "sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2026-02-25",
+    "accession_number": "0001045810-26-000019",
+    "primary_document": "nvda-20260225.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000019/nvda-20260225.htm",
+    "output_file": "sec_filings_nvda/2026-02-25_8-K_0001045810-26-000019.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2026-01-23",
+    "accession_number": "0001045810-26-000003",
+    "primary_document": "nvda-20260120.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581026000003/nvda-20260120.htm",
+    "output_file": "sec_filings_nvda/2026-01-23_8-K_0001045810-26-000003.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "10-Q",
+    "filing_date": "2025-11-19",
+    "accession_number": "0001045810-25-000230",
+    "primary_document": "nvda-20251026.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000230/nvda-20251026.htm",
+    "output_file": "sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-11-19",
+    "accession_number": "0001045810-25-000228",
+    "primary_document": "nvda-20251119.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000228/nvda-20251119.htm",
+    "output_file": "sec_filings_nvda/2025-11-19_8-K_0001045810-25-000228.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "10-Q",
+    "filing_date": "2025-08-27",
+    "accession_number": "0001045810-25-000209",
+    "primary_document": "nvda-20250727.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000209/nvda-20250727.htm",
+    "output_file": "sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-08-27",
+    "accession_number": "0001045810-25-000207",
+    "primary_document": "nvda-20250827.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000207/nvda-20250827.htm",
+    "output_file": "sec_filings_nvda/2025-08-27_8-K_0001045810-25-000207.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-08-05",
+    "accession_number": "0001045810-25-000197",
+    "primary_document": "nvda-20250731.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000197/nvda-20250731.htm",
+    "output_file": "sec_filings_nvda/2025-08-05_8-K_0001045810-25-000197.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-07-01",
+    "accession_number": "0001045810-25-000179",
+    "primary_document": "nvda-20250625.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000179/nvda-20250625.htm",
+    "output_file": "sec_filings_nvda/2025-07-01_8-K_0001045810-25-000179.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "10-Q",
+    "filing_date": "2025-05-28",
+    "accession_number": "0001045810-25-000116",
+    "primary_document": "nvda-20250427.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000116/nvda-20250427.htm",
+    "output_file": "sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-05-28",
+    "accession_number": "0001045810-25-000115",
+    "primary_document": "nvda-20250528.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000115/nvda-20250528.htm",
+    "output_file": "sec_filings_nvda/2025-05-28_8-K_0001045810-25-000115.txt"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "ticker": "NVDA",
+    "cik": "0001045810",
+    "form": "8-K",
+    "filing_date": "2025-04-15",
+    "accession_number": "0001045810-25-000082",
+    "primary_document": "nvda-20250409.htm",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000082/nvda-20250409.htm",
+    "output_file": "sec_filings_nvda/2025-04-15_8-K_0001045810-25-000082.txt"
+  }
+]

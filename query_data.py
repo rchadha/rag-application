@@ -10,6 +10,9 @@ import os
 # Load the API key from the .env file
 load_dotenv()
 CHROMA_PATH = "chroma"
+SEC_COLLECTION_NAME = "sec_filings_nvda"
+EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+MIN_RELEVANCE_SCORE = 0.35
 
 PROMPT = """
 Answer the question based only on the following context:
@@ -20,20 +23,18 @@ Answer the question based on the above context: {question}
 
 def query_database(query_text: str):
     print(f"Querying Vector DB with Query: {query_text}")
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("query_text", type=str, help="The text to query")
-    # args = parser.parse_args()
-    # query_text = args.query_text
-
-    # Prepare the DB
-    embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+    embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
+    db = Chroma(
+        collection_name=SEC_COLLECTION_NAME,
+        persist_directory=CHROMA_PATH,
+        embedding_function=embedding_function,
+    )
 
     # Search the DB
     results = db.similarity_search_with_relevance_scores(query_text, k=3)
     # Print the results
     # print("Results:", results[0])
-    if len(results) == 0 or results[0][1] < 0.7:
+    if len(results) == 0 or results[0][1] < MIN_RELEVANCE_SCORE:
         print("Unable to find matching results")
         return
     
@@ -63,5 +64,11 @@ def query_database(query_text: str):
     # formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
     # print(formatted_response)
 
-# if __name__ == "__main__":
-#     main()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("query_text", type=str, help="The text to query")
+    args = parser.parse_args()
+    print(query_database(args.query_text))
+
+if __name__ == "__main__":
+    main()
