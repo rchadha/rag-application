@@ -1,9 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_data import query_database
+import os
 
 app = Flask(__name__)
 CORS(app) # Enable CORS for all routes
+
+@app.route('/health', methods=['GET'])
+def health():
+    """Health check endpoint for ECS/ALB"""
+    return jsonify({'status': 'healthy'}), 200
 
 @app.route('/query', methods=['POST'])
 def query():
@@ -21,5 +27,8 @@ def query():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3001, debug=True)
-
+    # Use environment variable for port, default to 3001
+    port = int(os.environ.get('PORT', 3001))
+    # Disable debug in production
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)
