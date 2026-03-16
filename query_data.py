@@ -4,12 +4,20 @@ from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from langsmith import traceable, tracing_context
 from dotenv import load_dotenv
 import os
+import re
+from langsmith_config import get_langsmith_project, is_langsmith_enabled
 
 # Load the API key from the .env file
 load_dotenv()
 CHROMA_PATH = "chroma"
+SEC_COLLECTION_NAME = "sec_filings_nvda"
+EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+CHAT_MODEL_NAME = "gpt-5.4"
+MIN_RELEVANCE_SCORE = 0.35
+LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
 
 PROMPT = """
 Answer the question based only on the following context:
@@ -18,50 +26,66 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-def query_database(query_text: str):
-    print(f"Querying Vector DB with Query: {query_text}")
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("query_text", type=str, help="The text to query")
-    # args = parser.parse_args()
-    # query_text = args.query_text
+def normalize_text(text) -> str:
+    if isinstance(text, list):
+        text = " ".join(text)
+    return re.sub(r"\s+", " ", text).strip()
 
-    # Prepare the DB
-    embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
-
-    # Search the DB
-    results = db.similarity_search_with_relevance_scores(query_text, k=3)
-    # Print the results
-    # print("Results:", results[0])
-    if len(results) == 0 or results[0][1] < 0.7:
-        print("Unable to find matching results")
-        return
-    
-    
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    print (f"Context: {context_text}")
-    # Prepare the context and prompt
-    context_text = "\n\n---\n\n".join(
-        [" ".join(doc.page_content) if isinstance(doc.page_content, list) else doc.page_content for doc, _score in results]
+@traceable(name="retrieve_sec_documents")
+def retrieve_documents(query_text: str):
+    embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
+    db = Chroma(
+        collection_name=SEC_COLLECTION_NAME,
+        persist_directory=CHROMA_PATH,
+        embedding_function=embedding_function,
     )
-    promt_template = ChatPromptTemplate.from_template(PROMPT)
-    prompt = promt_template.format(context=context_text, question=query_text)
-    # print(f"Prompt: {prompt}")
+    return db.similarity_search_with_relevance_scores(query_text, k=3)
 
-    # # Get the response from the model
-    model = ChatOpenAI()
+@traceable(name="generate_sec_answer")
+def generate_answer(query_text: str, results):
+    context_text = "\n\n---\n\n".join(
+        [normalize_text(doc.page_content) for doc, _score in results]
+    )
+    context_preview = context_text[:500]
+    if len(context_text) > 500:
+        context_preview += "..."
+    print(f"Context preview: {context_preview}")
+
+    prompt_template = ChatPromptTemplate.from_template(PROMPT)
+    prompt = prompt_template.format(context=context_text, question=query_text)
+
+    model = ChatOpenAI(model=CHAT_MODEL_NAME)
     response = model.invoke(prompt)
-
-    # Extract the text content from AIMessage object
     response_text = response.content if hasattr(response, 'content') else response
-
     sources = [doc.metadata["source"] for doc, _score in results]
     return {
         "response": response_text,
         "sources": sources
     }
-    # formatted_response = f"Response: {response}\n\nSources: {', '.join(sources)}"
-    # print(formatted_response)
 
-# if __name__ == "__main__":
-#     main()
+@traceable(name="query_database")
+def query_database(query_text: str):
+    print(f"Querying Vector DB with Query: {query_text}")
+    results = retrieve_documents(query_text)
+    if len(results) == 0 or results[0][1] < MIN_RELEVANCE_SCORE:
+        print("Unable to find matching results")
+        return
+    return generate_answer(query_text, results)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("query_text", type=str, help="The text to query")
+    args = parser.parse_args()
+    with tracing_context(
+        project_name=LANGSMITH_PROJECT,
+        enabled=is_langsmith_enabled(),
+        tags=["sec", "rag", "query"],
+        metadata={
+            "collection": SEC_COLLECTION_NAME,
+            "embedding_model": EMBEDDING_MODEL_NAME,
+        },
+    ):
+        print(query_database(args.query_text))
+
+if __name__ == "__main__":
+    main()
