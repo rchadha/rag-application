@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable, tracing_context
 from dotenv import load_dotenv
 import os
+import re
 from langsmith_config import get_langsmith_project, is_langsmith_enabled
 
 # Load the API key from the .env file
@@ -14,6 +15,7 @@ load_dotenv()
 CHROMA_PATH = "chroma"
 SEC_COLLECTION_NAME = "sec_filings_nvda"
 EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+CHAT_MODEL_NAME = "gpt-5.4"
 MIN_RELEVANCE_SCORE = 0.35
 LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
 
@@ -23,6 +25,11 @@ Answer the question based only on the following context:
 
 Answer the question based on the above context: {question}
 """
+
+def normalize_text(text) -> str:
+    if isinstance(text, list):
+        text = " ".join(text)
+    return re.sub(r"\s+", " ", text).strip()
 
 @traceable(name="retrieve_sec_documents")
 def retrieve_documents(query_text: str):
@@ -37,14 +44,17 @@ def retrieve_documents(query_text: str):
 @traceable(name="generate_sec_answer")
 def generate_answer(query_text: str, results):
     context_text = "\n\n---\n\n".join(
-        [" ".join(doc.page_content) if isinstance(doc.page_content, list) else doc.page_content for doc, _score in results]
+        [normalize_text(doc.page_content) for doc, _score in results]
     )
-    print(f"Context: {context_text}")
+    context_preview = context_text[:500]
+    if len(context_text) > 500:
+        context_preview += "..."
+    print(f"Context preview: {context_preview}")
 
     prompt_template = ChatPromptTemplate.from_template(PROMPT)
     prompt = prompt_template.format(context=context_text, question=query_text)
 
-    model = ChatOpenAI()
+    model = ChatOpenAI(model=CHAT_MODEL_NAME)
     response = model.invoke(prompt)
     response_text = response.content if hasattr(response, 'content') else response
     sources = [doc.metadata["source"] for doc, _score in results]
