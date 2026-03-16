@@ -1,5 +1,6 @@
 python-dotenv # For reading environment variables stored in .env file
 langchain
+langsmith
 langchain-community
 langchain-openai # For embeddings
 unstructured # Document loading

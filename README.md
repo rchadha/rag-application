@@ -27,6 +27,15 @@ rm -rf rag-application
 pip install -r requirements.txt
 ```
 
+### Optional: Enable LangSmith observability
+Add these variables to `.env` to capture indexing and query traces in LangSmith:
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY="your-langsmith-api-key"
+LANGSMITH_PROJECT="rag-application-sec"
+```
+
 ### Create Vector DB
 ```
 python create_database.py

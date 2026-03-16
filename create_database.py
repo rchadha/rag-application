@@ -4,10 +4,12 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
+from langsmith import traceable, tracing_context
 from dotenv import load_dotenv
 import os
 import re
 import nltk
+from langsmith_config import get_langsmith_project, is_langsmith_enabled
 nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('averaged_perceptron_tagger_eng')
@@ -20,16 +22,28 @@ CHROMA_PATH = "chroma"
 SEC_FILINGS_PATH = os.path.join(DATA_PATH, "sec_filings_nvda")
 SEC_COLLECTION_NAME = "sec_filings_nvda"
 EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
 
 def main():
-    index_sec_filings_documents()
+    with tracing_context(
+        project_name=LANGSMITH_PROJECT,
+        enabled=is_langsmith_enabled(),
+        tags=["sec", "indexing"],
+        metadata={
+            "collection": SEC_COLLECTION_NAME,
+            "embedding_model": EMBEDDING_MODEL_NAME,
+        },
+    ):
+        index_sec_filings_documents()
 
+@traceable(name="index_sec_filings_documents")
 def index_sec_filings_documents():
     documents = load_sec_filings_documents()
     chunks = split_documents_into_chunks(documents)
     chunks = add_dataset_metadata(chunks, dataset_name=SEC_COLLECTION_NAME)
     rebuild_collection(chunks, collection_name=SEC_COLLECTION_NAME)
 
+@traceable(name="load_sec_filings_documents")
 def load_sec_filings_documents():
     print(f"Loading SEC filings from: {SEC_FILINGS_PATH}")
     filings_loader = DirectoryLoader(
@@ -42,6 +56,7 @@ def load_sec_filings_documents():
     print(f"Loaded {len(documents)} SEC filing documents")
     return documents
 
+@traceable(name="split_documents_into_chunks")
 def split_documents_into_chunks(documents: list[Document]):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=1200,
@@ -58,6 +73,7 @@ def split_documents_into_chunks(documents: list[Document]):
 
     return chunks
 
+@traceable(name="add_dataset_metadata")
 def add_dataset_metadata(chunks: list[Document], dataset_name: str):
     prepared_chunks = []
 
@@ -82,6 +98,7 @@ def extract_filing_details(source_name: str):
     details["ticker"] = "NVDA"
     return details
 
+@traceable(name="rebuild_collection")
 def rebuild_collection(chunks: list[Document], collection_name: str):
     embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
     existing_db = Chroma(

@@ -129,3 +129,20 @@ Potential future improvements:
 - richer metadata filters in retrieval
 - separate query modes for SEC filings vs other corpora
 
+## LangSmith Observability
+
+Minimal LangSmith tracing was added for observability around:
+
+- SEC indexing runs
+- retrieval during queries
+- answer generation during queries
+
+To enable it, add this to `.env`:
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY="your-langsmith-api-key"
+LANGSMITH_PROJECT="rag-application-sec"
+```
+
+Tracing is selective and optional. If the env vars are not set, the app behavior remains unchanged.
