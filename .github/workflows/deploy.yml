@@ -1,0 +1,208 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: rag-application
+  ECS_CLUSTER: rag-application-cluster
+  ECS_SERVICE: rag-application-service
+  CONTAINER_NAME: rag-application-container
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov requests
+
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('averaged_perceptron_tagger_eng')"
+
+      # Optional: Run tests if you have them
+      # - name: Run tests
+      #   run: pytest tests/ -v --cov
+
+      - name: Lint with flake8 (optional)
+        run: |
+          pip install flake8
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        continue-on-error: true
+
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Option 1: Using OIDC (recommended - no long-lived credentials)
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+          # Option 2: Using access keys (uncomment if not using OIDC)
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build Docker image
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          # Push to ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECR_REPOSITORY }} \
+            --query taskDefinition > task-definition.json
+
+      - name: Update task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Verify deployment
+        run: |
+          # Wait a bit for service to stabilize
+          sleep 30
+
+          # Get ALB DNS
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --names rag-application-alb \
+            --query 'LoadBalancers[0].DNSName' \
+            --output text)
+
+          echo "Application URL: http://$ALB_DNS"
+
+          # Test health endpoint
+          curl -f http://$ALB_DNS/health || exit 1
+
+          echo "Deployment successful!"
+
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check
+        continue-on-error: true
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: |
+          terraform plan -no-color -out=tfplan
+        continue-on-error: true
+
+      - name: Comment PR with plan
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const output = `#### Terraform Plan
+            <details><summary>Show Plan</summary>
+
+            \`\`\`
+            Check the Actions logs for the full plan output
+            \`\`\`
+
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });

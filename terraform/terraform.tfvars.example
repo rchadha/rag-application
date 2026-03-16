@@ -1,0 +1,27 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and customize for your environment
+
+aws_region   = "us-east-1"
+project_name = "rag-application"
+environment  = "production"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# Container Configuration
+container_port = 3001
+
+# ECS Task Configuration
+task_cpu    = "1024" # 1 vCPU (256, 512, 1024, 2048, 4096)
+task_memory = "2048" # 2 GB (512, 1024, 2048, 4096, 8192, etc.)
+
+# Auto Scaling
+desired_count = 2
+min_capacity  = 1
+max_capacity  = 10
+
+# Logging
+log_retention_days = 7
+
+# Optional: HTTPS (uncomment and provide certificate ARN)
+# certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/..."
