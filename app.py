@@ -19,7 +19,9 @@ def query():
         return jsonify({'error': 'Invalid input'}), 400
 
     query_string = data['query']
-    result = query_database(query_string)
+    dataset = data.get('dataset', 'sec')
+    use_reranker = bool(data.get('use_reranker', False))
+    result = query_database(query_string, dataset=dataset, use_reranker=use_reranker)
 
     if result is None:
         return jsonify({'error': 'Query failed'}), 500
