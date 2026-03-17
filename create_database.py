@@ -1,10 +1,11 @@
 from langchain_community.document_loaders import DirectoryLoader
-from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import Docx2txtLoader
 from langchain_openai import OpenAIEmbeddings
-from langchain_chroma import Chroma
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
 from langsmith import traceable, tracing_context
 from dotenv import load_dotenv
 import os
@@ -19,12 +20,12 @@ nltk.download('averaged_perceptron_tagger_eng')
 load_dotenv()
 
 DATA_PATH = "data"
-CHROMA_PATH = "chroma"
 SEC_FILINGS_PATH = os.path.join(DATA_PATH, "sec_filings_nvda")
 EARNINGS_CALLS_PATH = os.path.join(DATA_PATH, "earnings_calls_nvda")
-SEC_COLLECTION_NAME = "sec_filings_nvda"
-EARNINGS_COLLECTION_NAME = "earnings_calls_nvda"
+SEC_NAMESPACE = "sec_filings_nvda"
+EARNINGS_NAMESPACE = "earnings_calls_nvda"
 EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME", "rag-application")
 LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
 
 def main():
@@ -45,7 +46,7 @@ def main():
         enabled=is_langsmith_enabled(),
         tags=[dataset_config["trace_tag"], "indexing"],
         metadata={
-            "collection": dataset_config["collection_name"],
+            "namespace": dataset_config["namespace"],
             "embedding_model": EMBEDDING_MODEL_NAME,
             "dataset": args.dataset,
         },
@@ -55,8 +56,8 @@ def main():
 def get_dataset_config(dataset_name: str):
     if dataset_name == "earnings":
         return {
-            "dataset_name": EARNINGS_COLLECTION_NAME,
-            "collection_name": EARNINGS_COLLECTION_NAME,
+            "dataset_name": EARNINGS_NAMESPACE,
+            "namespace": EARNINGS_NAMESPACE,
             "path": EARNINGS_CALLS_PATH,
             "globs": ["*.txt", "*.docx"],
             "chunk_size": 800,
@@ -66,8 +67,8 @@ def get_dataset_config(dataset_name: str):
         }
 
     return {
-        "dataset_name": SEC_COLLECTION_NAME,
-        "collection_name": SEC_COLLECTION_NAME,
+        "dataset_name": SEC_NAMESPACE,
+        "namespace": SEC_NAMESPACE,
         "path": SEC_FILINGS_PATH,
         "globs": ["*.txt"],
         "chunk_size": 1200,
@@ -89,7 +90,7 @@ def index_documents(dataset_config: dict):
         chunk_overlap=dataset_config["chunk_overlap"],
     )
     chunks = add_dataset_metadata(chunks, dataset_name=dataset_config["dataset_name"])
-    rebuild_collection(chunks, collection_name=dataset_config["collection_name"])
+    rebuild_collection(chunks, namespace=dataset_config["namespace"])
 
 @traceable(name="load_documents")
 def load_documents(dataset_path: str, file_globs: list[str], loader_name: str):
@@ -176,28 +177,26 @@ def extract_earnings_call_details(source_name: str):
     return details
 
 @traceable(name="rebuild_collection")
-def rebuild_collection(chunks: list[Document], collection_name: str):
+def rebuild_collection(chunks: list[Document], namespace: str):
     embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
-    existing_db = Chroma(
-        collection_name=collection_name,
-        persist_directory=CHROMA_PATH,
-        embedding_function=embedding_function,
-    )
+    pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
+    index = pc.Index(PINECONE_INDEX_NAME)
 
+    # Delete all existing vectors in this namespace before re-indexing
     try:
-        existing_db.delete_collection()
-        print(f"Deleted existing collection: {collection_name}")
-    except Exception:
-        print(f"Collection {collection_name} does not exist yet. Creating it now.")
+        index.delete(delete_all=True, namespace=namespace)
+        print(f"Deleted existing vectors in namespace: {namespace}")
+    except Exception as e:
+        print(f"Could not delete namespace {namespace} (may not exist yet): {e}")
 
-    Chroma.from_documents(
+    PineconeVectorStore.from_documents(
         chunks,
         embedding_function,
-        persist_directory=CHROMA_PATH,
-        collection_name=collection_name,
+        index_name=PINECONE_INDEX_NAME,
+        namespace=namespace,
     )
 
-    print(f"Saved {len(chunks)} chunks to collection '{collection_name}' in {CHROMA_PATH}")
+    print(f"Saved {len(chunks)} chunks to namespace '{namespace}' in Pinecone index '{PINECONE_INDEX_NAME}'")
 
 if __name__ == "__main__":
     main()

@@ -3,13 +3,13 @@ import re
 from typing import Any
 
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
+from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
 from sentence_transformers import CrossEncoder
 
 load_dotenv()
 
-CHROMA_PATH = "chroma"
+PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME", "rag-application")
 EMBEDDING_MODEL_NAME = "text-embedding-3-small"
 CROSS_ENCODER_MODEL_NAME = os.getenv(
     "CROSS_ENCODER_MODEL_NAME",
@@ -46,10 +46,10 @@ def _get_reranker() -> CrossEncoder:
 
 
 def retrieve_candidates(query_text: str, dataset: str = "sec", candidate_k: int = 10):
-    db = Chroma(
-        collection_name=get_collection_name(dataset),
-        persist_directory=CHROMA_PATH,
-        embedding_function=_get_embedding_function(),
+    db = PineconeVectorStore(
+        index_name=PINECONE_INDEX_NAME,
+        namespace=get_collection_name(dataset),
+        embedding=_get_embedding_function(),
     )
     results = db.similarity_search_with_relevance_scores(query_text, k=candidate_k)
 
