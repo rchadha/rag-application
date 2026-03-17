@@ -129,6 +129,61 @@ Potential future improvements:
 - richer metadata filters in retrieval
 - separate query modes for SEC filings vs other corpora
 
+## Multi-Corpus Support
+
+The project now supports separate corpora and separate Chroma collections.
+
+Current supported datasets:
+
+- `sec` -> collection `sec_filings_nvda`
+- `earnings` -> collection `earnings_calls_nvda`
+
+### Index commands
+
+SEC filings:
+
+```bash
+./rag-application/bin/python create_database.py --dataset sec
+```
+
+Earnings calls:
+
+```bash
+./rag-application/bin/python create_database.py --dataset earnings
+```
+
+### Query commands
+
+SEC filings:
+
+```bash
+./rag-application/bin/python query_data.py --dataset sec "What risk factors did NVIDIA mention?"
+```
+
+Earnings calls:
+
+```bash
+./rag-application/bin/python query_data.py --dataset earnings "What did NVIDIA say about demand?"
+```
+
+### Earnings call transcript folder
+
+Place transcript files in:
+
+`data/earnings_calls_nvda`
+
+Suggested filename format:
+
+- `2025-11-20_q3_earnings_call.txt`
+- `2026-02-26_q4_earnings_call.txt`
+
+If filenames follow that pattern, the indexer will extract metadata such as:
+
+- `call_date`
+- `quarter`
+- `call_type`
+- `ticker`
+
 ## LangSmith Observability
 
 Minimal LangSmith tracing was added for observability around:

@@ -14,6 +14,10 @@ from retrieval import (
 
 # Load the API key from the .env file
 load_dotenv()
+CHROMA_PATH = "chroma"
+SEC_COLLECTION_NAME = "sec_filings_nvda"
+EARNINGS_COLLECTION_NAME = "earnings_calls_nvda"
+EMBEDDING_MODEL_NAME = "text-embedding-3-small"
 CHAT_MODEL_NAME = "gpt-5.4"
 MIN_RELEVANCE_SCORE = 0.35
 LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
@@ -25,7 +29,34 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-@traceable(name="generate_answer")
+def normalize_text(text) -> str:
+    if isinstance(text, list):
+        text = " ".join(text)
+    return re.sub(r"\s+", " ", text).strip()
+
+def get_collection_config(dataset_name: str):
+    if dataset_name == "earnings":
+        return {
+            "collection_name": EARNINGS_COLLECTION_NAME,
+            "trace_tag": "earnings",
+        }
+
+    return {
+        "collection_name": SEC_COLLECTION_NAME,
+        "trace_tag": "sec",
+    }
+
+@traceable(name="retrieve_sec_documents")
+def retrieve_documents(query_text: str, collection_name: str):
+    embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
+    db = Chroma(
+        collection_name=collection_name,
+        persist_directory=CHROMA_PATH,
+        embedding_function=embedding_function,
+    )
+    return db.similarity_search_with_relevance_scores(query_text, k=3)
+
+@traceable(name="generate_sec_answer")
 def generate_answer(query_text: str, results):
     context_text = "\n\n---\n\n".join(
         [result["content"] for result in results]
@@ -59,22 +90,10 @@ def generate_answer(query_text: str, results):
     }
 
 @traceable(name="query_database")
-def query_database(
-    query_text: str,
-    dataset: str = "sec",
-    use_reranker: bool = False,
-    candidate_k: int = 10,
-    final_k: int = 3,
-):
-    print(f"Querying dataset '{dataset}' with query: {query_text}")
-    results = get_top_results(
-        query_text,
-        dataset=dataset,
-        candidate_k=candidate_k,
-        final_k=final_k,
-        use_reranker=use_reranker,
-    )
-    if len(results) == 0 or results[0]["vector_score"] < MIN_RELEVANCE_SCORE:
+def query_database(query_text: str, collection_name: str):
+    print(f"Querying Vector DB with Query: {query_text}")
+    results = retrieve_documents(query_text, collection_name)
+    if len(results) == 0 or results[0][1] < MIN_RELEVANCE_SCORE:
         print("Unable to find matching results")
         return
     return generate_answer(query_text, results)
@@ -82,31 +101,25 @@ def query_database(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("query_text", type=str, help="The text to query")
-    parser.add_argument("--dataset", choices=["sec", "earnings"], default="sec")
-    parser.add_argument("--use-reranker", action="store_true")
-    parser.add_argument("--candidate-k", type=int, default=10)
-    parser.add_argument("--final-k", type=int, default=3)
+    parser.add_argument(
+        "--dataset",
+        choices=["sec", "earnings"],
+        default="sec",
+        help="Which dataset to query",
+    )
     args = parser.parse_args()
+    collection_config = get_collection_config(args.dataset)
     with tracing_context(
         project_name=LANGSMITH_PROJECT,
         enabled=is_langsmith_enabled(),
-        tags=[args.dataset, "rag", "query"],
+        tags=[collection_config["trace_tag"], "rag", "query"],
         metadata={
-            "collection": get_collection_name(args.dataset),
+            "collection": collection_config["collection_name"],
             "embedding_model": EMBEDDING_MODEL_NAME,
-            "cross_encoder_model": CROSS_ENCODER_MODEL_NAME,
-            "use_reranker": args.use_reranker,
+            "dataset": args.dataset,
         },
     ):
-        print(
-            query_database(
-                args.query_text,
-                dataset=args.dataset,
-                use_reranker=args.use_reranker,
-                candidate_k=args.candidate_k,
-                final_k=args.final_k,
-            )
-        )
+        print(query_database(args.query_text, collection_config["collection_name"]))
 
 if __name__ == "__main__":
     main()

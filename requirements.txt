@@ -18,5 +18,4 @@ scikit-learn
 matplotlib
 requests
 beautifulsoup4
-sentence-transformers
-torch
+docx2txt
