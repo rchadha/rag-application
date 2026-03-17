@@ -1,0 +1,63 @@
+[
+  {
+    "question": "What strategy does NVIDIA describe for AI infrastructure?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2026-02-25_10-K_0001045810-26-000021.txt"
+    ]
+  },
+  {
+    "question": "What did NVIDIA say about supply and capacity constraints?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-11-19_10-Q_0001045810-25-000230.txt",
+      "2026-02-25_10-K_0001045810-26-000021.txt"
+    ]
+  },
+  {
+    "question": "What risk factors did NVIDIA mention?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-05-28_10-Q_0001045810-25-000116.txt",
+      "2025-08-27_10-Q_0001045810-25-000209.txt",
+      "2025-11-19_10-Q_0001045810-25-000230.txt"
+    ]
+  },
+  {
+    "question": "What did NVIDIA say about data centers, energy, and capital availability?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-11-19_10-Q_0001045810-25-000230.txt",
+      "2026-02-25_10-K_0001045810-26-000021.txt"
+    ]
+  },
+  {
+    "question": "What did NVIDIA say about legal proceedings?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-11-19_10-Q_0001045810-25-000230.txt"
+    ]
+  },
+  {
+    "question": "What did NVIDIA mention about manufacturing lead times?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-05-28_10-Q_0001045810-25-000116.txt",
+      "2025-08-27_10-Q_0001045810-25-000209.txt"
+    ]
+  },
+  {
+    "question": "What did NVIDIA say about acquisitions and integration risk?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2025-08-27_10-Q_0001045810-25-000209.txt"
+    ]
+  },
+  {
+    "question": "How did NVIDIA describe its accelerated computing platform?",
+    "dataset": "sec",
+    "expected_sources": [
+      "2026-02-25_10-K_0001045810-26-000021.txt"
+    ]
+  }
+]

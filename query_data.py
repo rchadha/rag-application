@@ -1,14 +1,16 @@
 import argparse
-# from dataclasses import dataclass
-from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langsmith import traceable, tracing_context
 from dotenv import load_dotenv
 import os
-import re
 from langsmith_config import get_langsmith_project, is_langsmith_enabled
+from retrieval import (
+    CROSS_ENCODER_MODEL_NAME,
+    EMBEDDING_MODEL_NAME,
+    get_collection_name,
+    get_top_results,
+)
 
 # Load the API key from the .env file
 load_dotenv()
@@ -57,7 +59,7 @@ def retrieve_documents(query_text: str, collection_name: str):
 @traceable(name="generate_sec_answer")
 def generate_answer(query_text: str, results):
     context_text = "\n\n---\n\n".join(
-        [normalize_text(doc.page_content) for doc, _score in results]
+        [result["content"] for result in results]
     )
     context_preview = context_text[:500]
     if len(context_text) > 500:
@@ -70,10 +72,21 @@ def generate_answer(query_text: str, results):
     model = ChatOpenAI(model=CHAT_MODEL_NAME)
     response = model.invoke(prompt)
     response_text = response.content if hasattr(response, 'content') else response
-    sources = [doc.metadata["source"] for doc, _score in results]
+    sources = []
+    for result in results:
+        if result["source"] not in sources:
+            sources.append(result["source"])
     return {
         "response": response_text,
-        "sources": sources
+        "sources": sources,
+        "retrieval": [
+            {
+                "source": result["source"],
+                "vector_score": result.get("vector_score"),
+                "rerank_score": result.get("rerank_score"),
+            }
+            for result in results
+        ],
     }
 
 @traceable(name="query_database")

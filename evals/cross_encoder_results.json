@@ -1,0 +1,478 @@
+{
+  "embedding_model": "text-embedding-3-small",
+  "cross_encoder_model": "BAAI/bge-reranker-base",
+  "baseline_summary": {
+    "questions": 8,
+    "hit_at_1": 0.875,
+    "hit_at_3": 0.875,
+    "mrr": 0.875
+  },
+  "reranked_summary": {
+    "questions": 8,
+    "hit_at_1": 0.75,
+    "hit_at_3": 1.0,
+    "mrr": 0.8333333333333334
+  },
+  "baseline": [
+    {
+      "question": "What strategy does NVIDIA describe for AI infrastructure?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5649488500214539,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5216540477976687,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5167058391950956,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about supply and capacity constraints?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt",
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.5056754610307641,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.49185196906876694,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.4886578701543689,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What risk factors did NVIDIA mention?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-05-28_10-Q_0001045810-25-000116.txt",
+        "2025-08-27_10-Q_0001045810-25-000209.txt",
+        "2025-11-19_10-Q_0001045810-25-000230.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.5096931545678083,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.44496393727518546,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.42369048407670573,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about data centers, energy, and capital availability?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt",
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.666638869500356,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.5864591685085648,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5855020557257309,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about legal proceedings?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt"
+      ],
+      "rank": null,
+      "hit_at_1": 0,
+      "hit_at_3": 0,
+      "mrr": 0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5977766088581041,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.5910051275889499,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.5461913950916806,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA mention about manufacturing lead times?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-05-28_10-Q_0001045810-25-000116.txt",
+        "2025-08-27_10-Q_0001045810-25-000209.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.49663927616349557,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.4418963080274855,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.36221808326495997,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about acquisitions and integration risk?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-08-27_10-Q_0001045810-25-000209.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.5024853660669745,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.4661386322851415,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.4347317782748017,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "How did NVIDIA describe its accelerated computing platform?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.6080177451372207,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5981703025700444,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5467245105784948,
+          "rerank_score": null
+        }
+      ]
+    }
+  ],
+  "reranked": [
+    {
+      "question": "What strategy does NVIDIA describe for AI infrastructure?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5079293059017326,
+          "rerank_score": 0.5598690509796143
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5649488500214539,
+          "rerank_score": 0.30604466795921326
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.46617180997738217,
+          "rerank_score": 0.20769478380680084
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about supply and capacity constraints?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt",
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 3,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.3333333333333333,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.4235567033276233,
+          "rerank_score": 0.019288869574666023
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.3923180559191366,
+          "rerank_score": 0.001537052565254271
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.49181993746389874,
+          "rerank_score": 0.001487263012677431
+        }
+      ]
+    },
+    {
+      "question": "What risk factors did NVIDIA mention?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-05-28_10-Q_0001045810-25-000116.txt",
+        "2025-08-27_10-Q_0001045810-25-000209.txt",
+        "2025-11-19_10-Q_0001045810-25-000230.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.44496393727518546,
+          "rerank_score": 0.874058187007904
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.5096931545678083,
+          "rerank_score": 0.8687973022460938
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.42369048407670573,
+          "rerank_score": 0.7218704223632812
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about data centers, energy, and capital availability?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt",
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5323475462018527,
+          "rerank_score": 0.9844077229499817
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.5864863953727029,
+          "rerank_score": 0.9522275924682617
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5855286503871413,
+          "rerank_score": 0.948838472366333
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about legal proceedings?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-11-19_10-Q_0001045810-25-000230.txt"
+      ],
+      "rank": 3,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.3333333333333333,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.5405831668414269,
+          "rerank_score": 0.6119611263275146
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5372343046992968,
+          "rerank_score": 0.09814924001693726
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.5372343046992968,
+          "rerank_score": 0.09814924001693726
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA mention about manufacturing lead times?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-05-28_10-Q_0001045810-25-000116.txt",
+        "2025-08-27_10-Q_0001045810-25-000209.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.33793762101262204,
+          "rerank_score": 0.16589263081550598
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.3595341719517863,
+          "rerank_score": 0.059345729649066925
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.49663927616349557,
+          "rerank_score": 0.022515805438160896
+        }
+      ]
+    },
+    {
+      "question": "What did NVIDIA say about acquisitions and integration risk?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2025-08-27_10-Q_0001045810-25-000209.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.5024853660669745,
+          "rerank_score": 0.09143992513418198
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.4661386322851415,
+          "rerank_score": 0.03444584459066391
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.4254565634698577,
+          "rerank_score": 0.01161983609199524
+        }
+      ]
+    },
+    {
+      "question": "How did NVIDIA describe its accelerated computing platform?",
+      "dataset": "sec",
+      "expected_sources": [
+        "2026-02-25_10-K_0001045810-26-000021.txt"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5980773687690779,
+          "rerank_score": 0.8427482843399048
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.5124654869132631,
+          "rerank_score": 0.6867266297340393
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.5009545503822103,
+          "rerank_score": 0.11663950979709625
+        }
+      ]
+    }
+  ]
+}
