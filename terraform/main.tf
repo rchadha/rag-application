@@ -206,6 +206,17 @@ resource "aws_secretsmanager_secret" "openai_api_key" {
   }
 }
 
+resource "aws_secretsmanager_secret" "pinecone_api_key" {
+  name                    = "${var.project_name}/pinecone-api-key"
+  description             = "Pinecone API Key for RAG Application"
+  recovery_window_in_days = 7
+
+  tags = {
+    Name        = "${var.project_name}-pinecone-key"
+    Environment = var.environment
+  }
+}
+
 # Note: The secret value must be set manually or via GitHub Actions
 # aws secretsmanager put-secret-value --secret-id <secret-name> --secret-string "your-key"
 
@@ -258,7 +269,8 @@ resource "aws_iam_role_policy" "ecs_task_execution_secrets" {
         "secretsmanager:GetSecretValue"
       ]
       Resource = [
-        aws_secretsmanager_secret.openai_api_key.arn
+        aws_secretsmanager_secret.openai_api_key.arn,
+        aws_secretsmanager_secret.pinecone_api_key.arn
       ]
     }]
   })
@@ -410,13 +422,23 @@ resource "aws_ecs_task_definition" "app" {
       {
         name  = "FLASK_ENV"
         value = var.environment
+      },
+      {
+        name  = "PINECONE_INDEX_NAME"
+        value = "rag-application"
       }
     ]
 
-    secrets = [{
-      name      = "OPENAI_API_KEY"
-      valueFrom = aws_secretsmanager_secret.openai_api_key.arn
-    }]
+    secrets = [
+      {
+        name      = "OPENAI_API_KEY"
+        valueFrom = aws_secretsmanager_secret.openai_api_key.arn
+      },
+      {
+        name      = "PINECONE_API_KEY"
+        valueFrom = aws_secretsmanager_secret.pinecone_api_key.arn
+      }
+    ]
 
     logConfiguration = {
       logDriver = "awslogs"

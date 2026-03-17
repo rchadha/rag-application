@@ -24,9 +24,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # NLTK data will be downloaded at runtime on first use instead of during build
 # This avoids cross-platform build issues
 
-# Copy application code and chroma vector DB
+# Copy application code
 COPY *.py ./
-COPY chroma/ ./chroma/
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 appuser && \

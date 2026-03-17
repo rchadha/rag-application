@@ -14,11 +14,7 @@ from retrieval import (
 
 # Load the API key from the .env file
 load_dotenv()
-CHROMA_PATH = "chroma"
-SEC_COLLECTION_NAME = "sec_filings_nvda"
-EARNINGS_COLLECTION_NAME = "earnings_calls_nvda"
-EMBEDDING_MODEL_NAME = "text-embedding-3-small"
-CHAT_MODEL_NAME = "gpt-5.4"
+CHAT_MODEL_NAME = "gpt-4o"
 MIN_RELEVANCE_SCORE = 0.35
 LANGSMITH_PROJECT = get_langsmith_project("rag-application-sec")
 
@@ -29,32 +25,10 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-def normalize_text(text) -> str:
-    if isinstance(text, list):
-        text = " ".join(text)
-    return re.sub(r"\s+", " ", text).strip()
-
 def get_collection_config(dataset_name: str):
     if dataset_name == "earnings":
-        return {
-            "collection_name": EARNINGS_COLLECTION_NAME,
-            "trace_tag": "earnings",
-        }
-
-    return {
-        "collection_name": SEC_COLLECTION_NAME,
-        "trace_tag": "sec",
-    }
-
-@traceable(name="retrieve_sec_documents")
-def retrieve_documents(query_text: str, collection_name: str):
-    embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
-    db = Chroma(
-        collection_name=collection_name,
-        persist_directory=CHROMA_PATH,
-        embedding_function=embedding_function,
-    )
-    return db.similarity_search_with_relevance_scores(query_text, k=3)
+        return {"dataset": "earnings", "trace_tag": "earnings"}
+    return {"dataset": "sec", "trace_tag": "sec"}
 
 @traceable(name="generate_sec_answer")
 def generate_answer(query_text: str, results):
@@ -92,8 +66,9 @@ def generate_answer(query_text: str, results):
 @traceable(name="query_database")
 def query_database(query_text: str, collection_name: str):
     print(f"Querying Vector DB with Query: {query_text}")
-    results = retrieve_documents(query_text, collection_name)
-    if len(results) == 0 or results[0][1] < MIN_RELEVANCE_SCORE:
+    dataset = "earnings" if "earnings" in collection_name else "sec"
+    results = get_top_results(query_text, dataset=dataset)
+    if not results:
         print("Unable to find matching results")
         return
     return generate_answer(query_text, results)
@@ -114,12 +89,11 @@ def main():
         enabled=is_langsmith_enabled(),
         tags=[collection_config["trace_tag"], "rag", "query"],
         metadata={
-            "collection": collection_config["collection_name"],
-            "embedding_model": EMBEDDING_MODEL_NAME,
             "dataset": args.dataset,
+            "embedding_model": EMBEDDING_MODEL_NAME,
         },
     ):
-        print(query_database(args.query_text, collection_config["collection_name"]))
+        print(query_database(args.query_text, collection_config["dataset"]))
 
 if __name__ == "__main__":
     main()
