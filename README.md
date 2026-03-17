@@ -41,9 +41,27 @@ LANGSMITH_PROJECT="rag-application-sec"
 python create_database.py
 ```
 
+To index earnings call transcripts instead of SEC filings:
+
+```bash
+python create_database.py --dataset earnings
+```
+
+To download earnings call transcripts first:
+
+```bash
+python data/download-earnings-calls.py
+```
+
 ### Query 
 ```
 python query_data.py "What is AWS Lambda?"
+```
+
+To query earnings calls:
+
+```bash
+python query_data.py --dataset earnings "What did NVIDIA say about demand?"
 ```
 
 ### Run Flask App

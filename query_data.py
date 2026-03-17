@@ -14,6 +14,7 @@ from langsmith_config import get_langsmith_project, is_langsmith_enabled
 load_dotenv()
 CHROMA_PATH = "chroma"
 SEC_COLLECTION_NAME = "sec_filings_nvda"
+EARNINGS_COLLECTION_NAME = "earnings_calls_nvda"
 EMBEDDING_MODEL_NAME = "text-embedding-3-small"
 CHAT_MODEL_NAME = "gpt-5.4"
 MIN_RELEVANCE_SCORE = 0.35
@@ -31,11 +32,23 @@ def normalize_text(text) -> str:
         text = " ".join(text)
     return re.sub(r"\s+", " ", text).strip()
 
+def get_collection_config(dataset_name: str):
+    if dataset_name == "earnings":
+        return {
+            "collection_name": EARNINGS_COLLECTION_NAME,
+            "trace_tag": "earnings",
+        }
+
+    return {
+        "collection_name": SEC_COLLECTION_NAME,
+        "trace_tag": "sec",
+    }
+
 @traceable(name="retrieve_sec_documents")
-def retrieve_documents(query_text: str):
+def retrieve_documents(query_text: str, collection_name: str):
     embedding_function = OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
     db = Chroma(
-        collection_name=SEC_COLLECTION_NAME,
+        collection_name=collection_name,
         persist_directory=CHROMA_PATH,
         embedding_function=embedding_function,
     )
@@ -64,9 +77,9 @@ def generate_answer(query_text: str, results):
     }
 
 @traceable(name="query_database")
-def query_database(query_text: str):
+def query_database(query_text: str, collection_name: str):
     print(f"Querying Vector DB with Query: {query_text}")
-    results = retrieve_documents(query_text)
+    results = retrieve_documents(query_text, collection_name)
     if len(results) == 0 or results[0][1] < MIN_RELEVANCE_SCORE:
         print("Unable to find matching results")
         return
@@ -75,17 +88,25 @@ def query_database(query_text: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("query_text", type=str, help="The text to query")
+    parser.add_argument(
+        "--dataset",
+        choices=["sec", "earnings"],
+        default="sec",
+        help="Which dataset to query",
+    )
     args = parser.parse_args()
+    collection_config = get_collection_config(args.dataset)
     with tracing_context(
         project_name=LANGSMITH_PROJECT,
         enabled=is_langsmith_enabled(),
-        tags=["sec", "rag", "query"],
+        tags=[collection_config["trace_tag"], "rag", "query"],
         metadata={
-            "collection": SEC_COLLECTION_NAME,
+            "collection": collection_config["collection_name"],
             "embedding_model": EMBEDDING_MODEL_NAME,
+            "dataset": args.dataset,
         },
     ):
-        print(query_database(args.query_text))
+        print(query_database(args.query_text, collection_config["collection_name"]))
 
 if __name__ == "__main__":
     main()
