@@ -1,0 +1,11 @@
+# Dependencies for local data ingestion scripts (create_database.py, ingest_social.py)
+# Not needed for the Flask API / Lambda runtime
+-r requirements.txt
+unstructured # Document loading
+unstructured[md] # For markdown support
+scikit-learn
+matplotlib
+beautifulsoup4
+docx2txt
+vaderSentiment # Sentiment analysis
+sentence-transformers # Cross-encoder reranking (optional, for evaluate_cross_encoder.py)

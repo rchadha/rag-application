@@ -5,7 +5,12 @@ from typing import Any
 from dotenv import load_dotenv
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
-from sentence_transformers import CrossEncoder
+
+try:
+    from sentence_transformers import CrossEncoder
+    _RERANKER_AVAILABLE = True
+except ImportError:
+    _RERANKER_AVAILABLE = False
 
 load_dotenv()
 
@@ -40,8 +45,10 @@ def _get_embedding_function() -> OpenAIEmbeddings:
     return OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME)
 
 
-def _get_reranker() -> CrossEncoder:
+def _get_reranker():
     global _reranker
+    if not _RERANKER_AVAILABLE:
+        raise ImportError("sentence-transformers is not installed. Run: pip install sentence-transformers")
     if _reranker is None:
         _reranker = CrossEncoder(CROSS_ENCODER_MODEL_NAME)
     return _reranker
