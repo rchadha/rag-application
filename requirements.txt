@@ -3,22 +3,14 @@ langchain
 langsmith
 langchain-community
 langchain-openai # For embeddings
-unstructured # Document loading
-unstructured[md] # For markdown support
-# onnxruntime==1.17.1 # chromadb dependency: on Mac use `conda install onnxruntime -c conda-forge`
-# For Windows users, install Microsoft Visual C++ Build Tools first
-# install onnxruntime before installing `chromadb`
 langchain-pinecone # Vector storage
 langchain-text-splitters
 pinecone
 openai # For embeddings
-tiktoken  # For embeddings 
+tiktoken  # For embeddings
 nltk # For embeddings
 flask
 flask-cors
-scikit-learn
-matplotlib
 requests
-beautifulsoup4
-docx2txt
-vaderSentiment # Sentiment analysis for social media
+apig-wsgi # AWS API Gateway to WSGI adapter for Lambda
+boto3 # AWS SDK (pre-installed in Lambda, needed locally)
