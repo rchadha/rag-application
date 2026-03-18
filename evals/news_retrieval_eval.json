@@ -1,0 +1,74 @@
+[
+  {
+    "question": "What is the latest news about NVIDIA chip sales in China?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139444628",
+      "finnhub/NVDA/139445241",
+      "finnhub/NVDA/139445240"
+    ]
+  },
+  {
+    "question": "What are NVIDIA's latest earnings and revenue results?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139444639",
+      "finnhub/NVDA/139438378",
+      "finnhub/NVDA/139433839"
+    ]
+  },
+  {
+    "question": "What are analysts saying about NVIDIA stock price target?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139433145",
+      "finnhub/NVDA/139434852",
+      "finnhub/NVDA/139437751"
+    ]
+  },
+  {
+    "question": "What is the demand outlook for NVIDIA AI data center products?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139443603",
+      "finnhub/NVDA/139435876",
+      "finnhub/NVDA/139434437"
+    ]
+  },
+  {
+    "question": "What export restrictions or regulations affect NVIDIA?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139444628",
+      "finnhub/NVDA/139445241",
+      "finnhub/NVDA/139445237"
+    ]
+  },
+  {
+    "question": "How is NVIDIA competing against AMD and Intel?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139437137",
+      "finnhub/NVDA/139443597",
+      "finnhub/NVDA/139433844"
+    ]
+  },
+  {
+    "question": "What is the latest news about NVIDIA Blackwell GPU production?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139437316",
+      "finnhub/NVDA/139433839",
+      "finnhub/NVDA/139443587"
+    ]
+  },
+  {
+    "question": "What has Jensen Huang announced recently?",
+    "dataset": "news",
+    "expected_sources": [
+      "finnhub/NVDA/139444639",
+      "finnhub/NVDA/139438380",
+      "finnhub/NVDA/139433844"
+    ]
+  }
+]
