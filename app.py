@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_data import query_database
+from pinecone import Pinecone
+from langchain_pinecone import PineconeVectorStore
+from langchain_openai import OpenAIEmbeddings
+from retrieval import PINECONE_INDEX_NAME, EMBEDDING_MODEL_NAME, COLLECTIONS
 import os
 import json
 import boto3
@@ -59,6 +63,46 @@ def query():
         return jsonify({'error': 'Query failed'}), 500
 
     return jsonify(result)
+
+@app.route('/status', methods=['GET'])
+def status():
+    _load_secrets()
+    try:
+        pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
+        index = pc.Index(PINECONE_INDEX_NAME)
+        stats = index.describe_index_stats()
+
+        result = {}
+        for dataset, namespace in COLLECTIONS.items():
+            ns_stats = stats.namespaces.get(namespace, {})
+            vector_count = ns_stats.get("vector_count", 0)
+            last_updated = None
+
+            # For news, find the latest published_at from a sample query
+            if dataset == "news" and vector_count > 0:
+                store = PineconeVectorStore(
+                    index_name=PINECONE_INDEX_NAME,
+                    namespace=namespace,
+                    embedding=OpenAIEmbeddings(model=EMBEDDING_MODEL_NAME),
+                )
+                docs = store.similarity_search("NVIDIA", k=50)
+                dates = [
+                    doc.metadata["published_at"]
+                    for doc in docs
+                    if doc.metadata.get("published_at")
+                ]
+                if dates:
+                    last_updated = max(dates)
+
+            result[dataset] = {
+                "vector_count": vector_count,
+                "last_updated": last_updated,
+            }
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     # Use environment variable for port, default to 3001
