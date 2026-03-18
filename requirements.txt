@@ -12,5 +12,5 @@ nltk # For embeddings
 flask
 flask-cors
 requests
-awsgi # AWS API Gateway to WSGI bridge for Lambda
+apig-wsgi # AWS API Gateway to WSGI adapter for Lambda
 boto3 # AWS SDK (pre-installed in Lambda, needed locally)

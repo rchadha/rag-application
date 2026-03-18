@@ -1,10 +1,8 @@
 """
-AWS Lambda handler — wraps the Flask app using aws-wsgi.
+AWS Lambda handler — wraps the Flask app using apig-wsgi.
 Lambda receives API Gateway events and forwards them to the Flask app.
 """
-import awsgi
+from apig_wsgi import make_lambda_handler
 from app import app
 
-
-def handler(event, context):
-    return awsgi.response(app, event, context)
+handler = make_lambda_handler(app)
