@@ -13,10 +13,10 @@ Environment variables (set in Terraform):
   PROJECT_NAME     - Used to build Secrets Manager paths (default: rag-application)
   AWS_REGION       - AWS region for Secrets Manager (default: us-east-1)
 
-Secrets Manager (fetched at runtime):
-  {PROJECT_NAME}/openai-api-key
-  {PROJECT_NAME}/pinecone-api-key
-  {PROJECT_NAME}/finnhub-api-key
+SSM Parameter Store (fetched at runtime, SecureString):
+  /{PROJECT_NAME}/openai-api-key
+  /{PROJECT_NAME}/pinecone-api-key
+  /{PROJECT_NAME}/finnhub-api-key
 
 EventBridge event payload (optional — overrides env vars):
   {
@@ -38,33 +38,29 @@ _secrets_loaded = False
 
 
 def _load_secrets() -> None:
-    """Fetch API keys from Secrets Manager on first invocation."""
+    """Fetch API keys from SSM Parameter Store on first invocation."""
     global _secrets_loaded
     if _secrets_loaded:
         return
 
     project = os.environ.get("PROJECT_NAME", "rag-application")
     region = os.environ.get("AWS_REGION", "us-east-1")
-    client = boto3.client("secretsmanager", region_name=region)
+    client = boto3.client("ssm", region_name=region)
 
-    secret_map = {
-        f"{project}/openai-api-key": "OPENAI_API_KEY",
-        f"{project}/pinecone-api-key": "PINECONE_API_KEY",
-        f"{project}/finnhub-api-key": "FINNHUB_API_KEY",
+    param_map = {
+        f"/{project}/openai-api-key": "OPENAI_API_KEY",
+        f"/{project}/pinecone-api-key": "PINECONE_API_KEY",
+        f"/{project}/finnhub-api-key": "FINNHUB_API_KEY",
     }
 
-    for secret_name, env_key in secret_map.items():
+    for param_name, env_key in param_map.items():
         if os.environ.get(env_key):
             continue
         try:
-            response = client.get_secret_value(SecretId=secret_name)
-            secret = response.get("SecretString", "")
-            try:
-                os.environ[env_key] = json.loads(secret)
-            except (json.JSONDecodeError, TypeError):
-                os.environ[env_key] = secret
+            response = client.get_parameter(Name=param_name, WithDecryption=True)
+            os.environ[env_key] = response["Parameter"]["Value"]
         except ClientError as e:
-            print(f"Warning: could not fetch secret {secret_name}: {e}")
+            print(f"Warning: could not fetch parameter {param_name}: {e}")
 
     _secrets_loaded = True
 

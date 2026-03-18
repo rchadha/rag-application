@@ -63,11 +63,16 @@ resource "aws_ecr_lifecycle_policy" "app" {
   })
 }
 
-# Secrets Manager
-resource "aws_secretsmanager_secret" "openai_api_key" {
-  name                    = "${var.project_name}/openai-api-key"
-  description             = "OpenAI API Key for RAG Application"
-  recovery_window_in_days = 7
+# SSM Parameter Store (free tier — no per-secret charge unlike Secrets Manager)
+resource "aws_ssm_parameter" "openai_api_key" {
+  name        = "/${var.project_name}/openai-api-key"
+  description = "OpenAI API Key for RAG Application"
+  type        = "SecureString"
+  value       = "placeholder"
+
+  lifecycle {
+    ignore_changes = [value]  # Value is set manually, not managed by Terraform
+  }
 
   tags = {
     Name        = "${var.project_name}-openai-key"
@@ -75,10 +80,15 @@ resource "aws_secretsmanager_secret" "openai_api_key" {
   }
 }
 
-resource "aws_secretsmanager_secret" "pinecone_api_key" {
-  name                    = "${var.project_name}/pinecone-api-key"
-  description             = "Pinecone API Key for RAG Application"
-  recovery_window_in_days = 7
+resource "aws_ssm_parameter" "pinecone_api_key" {
+  name        = "/${var.project_name}/pinecone-api-key"
+  description = "Pinecone API Key for RAG Application"
+  type        = "SecureString"
+  value       = "placeholder"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 
   tags = {
     Name        = "${var.project_name}-pinecone-key"
@@ -86,8 +96,8 @@ resource "aws_secretsmanager_secret" "pinecone_api_key" {
   }
 }
 
-# Note: The secret value must be set manually or via GitHub Actions
-# aws secretsmanager put-secret-value --secret-id <secret-name> --secret-string "your-key"
+# Note: Set the actual values after apply:
+# aws ssm put-parameter --name "/rag-application/openai-api-key" --value "your-key" --type SecureString --overwrite
 
 
 # Application Load Balancer - uncomment all resources below to re-enable ALB
@@ -223,17 +233,17 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 }
 
 resource "aws_iam_role_policy" "lambda_secrets" {
-  name = "secrets-access"
+  name = "ssm-params-access"
   role = aws_iam_role.lambda_exec.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
-      Action = ["secretsmanager:GetSecretValue"]
+      Action = ["ssm:GetParameter"]
       Resource = [
-        aws_secretsmanager_secret.openai_api_key.arn,
-        aws_secretsmanager_secret.pinecone_api_key.arn
+        aws_ssm_parameter.openai_api_key.arn,
+        aws_ssm_parameter.pinecone_api_key.arn,
       ]
     }]
   })
@@ -283,13 +293,18 @@ resource "aws_lambda_permission" "api_gateway" {
 }
 
 # ---------------------------------------------------------------------------
-# Finnhub API Key secret
+# Finnhub API Key parameter
 # ---------------------------------------------------------------------------
 
-resource "aws_secretsmanager_secret" "finnhub_api_key" {
-  name                    = "${var.project_name}/finnhub-api-key"
-  description             = "Finnhub API Key for news ingestion"
-  recovery_window_in_days = 7
+resource "aws_ssm_parameter" "finnhub_api_key" {
+  name        = "/${var.project_name}/finnhub-api-key"
+  description = "Finnhub API Key for news ingestion"
+  type        = "SecureString"
+  value       = "placeholder"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 
   tags = {
     Name        = "${var.project_name}-finnhub-key"
@@ -363,18 +378,18 @@ resource "aws_iam_role_policy_attachment" "ingest_basic" {
 }
 
 resource "aws_iam_role_policy" "ingest_secrets" {
-  name = "secrets-access"
+  name = "ssm-params-access"
   role = aws_iam_role.ingest_exec.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
-      Action = ["secretsmanager:GetSecretValue"]
+      Action = ["ssm:GetParameter"]
       Resource = [
-        aws_secretsmanager_secret.openai_api_key.arn,
-        aws_secretsmanager_secret.pinecone_api_key.arn,
-        aws_secretsmanager_secret.finnhub_api_key.arn,
+        aws_ssm_parameter.openai_api_key.arn,
+        aws_ssm_parameter.pinecone_api_key.arn,
+        aws_ssm_parameter.finnhub_api_key.arn,
       ]
     }]
   })

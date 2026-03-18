@@ -18,9 +18,9 @@ output "cloudwatch_log_group" {
   value       = aws_cloudwatch_log_group.lambda.name
 }
 
-output "secret_arn" {
-  description = "ARN of the OpenAI API key secret"
-  value       = aws_secretsmanager_secret.openai_api_key.arn
+output "openai_param_arn" {
+  description = "ARN of the OpenAI API key SSM parameter"
+  value       = aws_ssm_parameter.openai_api_key.arn
 }
 
 output "ingest_lambda_function_name" {
@@ -33,8 +33,8 @@ output "ingest_schedule_name" {
   value       = aws_scheduler_schedule.daily_ingest.name
 }
 
-output "finnhub_secret_arn" {
-  description = "ARN of the Finnhub API key secret"
-  value       = aws_secretsmanager_secret.finnhub_api_key.arn
+output "finnhub_param_arn" {
+  description = "ARN of the Finnhub API key SSM parameter"
+  value       = aws_ssm_parameter.finnhub_api_key.arn
 }
 
