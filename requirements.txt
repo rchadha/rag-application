@@ -21,3 +21,4 @@ matplotlib
 requests
 beautifulsoup4
 docx2txt
+vaderSentiment # Sentiment analysis for social media

@@ -19,6 +19,8 @@ CROSS_ENCODER_MODEL_NAME = os.getenv(
 COLLECTIONS = {
     "sec": "sec_filings_nvda",
     "earnings": "earnings_calls_nvda",
+    "social": "social",
+    "news": "news",
 }
 
 _reranker = None

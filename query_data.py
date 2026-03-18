@@ -28,6 +28,10 @@ Answer the question based on the above context: {question}
 def get_collection_config(dataset_name: str):
     if dataset_name == "earnings":
         return {"dataset": "earnings", "trace_tag": "earnings"}
+    if dataset_name == "social":
+        return {"dataset": "social", "trace_tag": "social"}
+    if dataset_name == "news":
+        return {"dataset": "news", "trace_tag": "news"}
     return {"dataset": "sec", "trace_tag": "sec"}
 
 @traceable(name="generate_sec_answer")
@@ -64,10 +68,9 @@ def generate_answer(query_text: str, results):
     }
 
 @traceable(name="query_database")
-def query_database(query_text: str, collection_name: str):
+def query_database(query_text: str, dataset: str = "sec", use_reranker: bool = False):
     print(f"Querying Vector DB with Query: {query_text}")
-    dataset = "earnings" if "earnings" in collection_name else "sec"
-    results = get_top_results(query_text, dataset=dataset)
+    results = get_top_results(query_text, dataset=dataset, use_reranker=use_reranker)
     if not results:
         print("Unable to find matching results")
         return
@@ -78,7 +81,7 @@ def main():
     parser.add_argument("query_text", type=str, help="The text to query")
     parser.add_argument(
         "--dataset",
-        choices=["sec", "earnings"],
+        choices=["sec", "earnings", "social", "news"],
         default="sec",
         help="Which dataset to query",
     )
@@ -93,7 +96,7 @@ def main():
             "embedding_model": EMBEDDING_MODEL_NAME,
         },
     ):
-        print(query_database(args.query_text, collection_config["dataset"]))
+        print(query_database(args.query_text, dataset=collection_config["dataset"]))
 
 if __name__ == "__main__":
     main()
