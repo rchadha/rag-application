@@ -281,3 +281,164 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.app.execution_arn}/*/*"
 }
+
+# ---------------------------------------------------------------------------
+# Finnhub API Key secret
+# ---------------------------------------------------------------------------
+
+resource "aws_secretsmanager_secret" "finnhub_api_key" {
+  name                    = "${var.project_name}/finnhub-api-key"
+  description             = "Finnhub API Key for news ingestion"
+  recovery_window_in_days = 7
+
+  tags = {
+    Name        = "${var.project_name}-finnhub-key"
+    Environment = var.environment
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Ingestion Lambda — same ECR image, different handler
+# ---------------------------------------------------------------------------
+
+resource "aws_lambda_function" "ingest" {
+  function_name = "${var.project_name}-ingest"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.app.repository_url}:latest"
+  role          = aws_iam_role.ingest_exec.arn
+  timeout       = 300  # 5 min — ingestion can take a while for multiple tickers
+  memory_size   = 512
+
+  image_config {
+    command = ["lambda_ingest_handler.handler"]
+  }
+
+  environment {
+    variables = {
+      PROJECT_NAME    = var.project_name
+      INGEST_TICKERS  = var.ingest_tickers
+      INGEST_DAYS     = tostring(var.ingest_days)
+      INGEST_SOURCES  = var.ingest_sources
+    }
+  }
+
+  tags = {
+    Name        = "${var.project_name}-ingest"
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_log_group" "ingest_lambda" {
+  name              = "/aws/lambda/${var.project_name}-ingest"
+  retention_in_days = var.log_retention_days
+
+  tags = {
+    Name        = "${var.project_name}-ingest"
+    Environment = var.environment
+  }
+}
+
+# IAM role for ingest Lambda
+resource "aws_iam_role" "ingest_exec" {
+  name = "${var.project_name}-ingest-exec-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+
+  tags = {
+    Name        = "${var.project_name}-ingest-exec-role"
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ingest_basic" {
+  role       = aws_iam_role.ingest_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "ingest_secrets" {
+  name = "secrets-access"
+  role = aws_iam_role.ingest_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = ["secretsmanager:GetSecretValue"]
+      Resource = [
+        aws_secretsmanager_secret.openai_api_key.arn,
+        aws_secretsmanager_secret.pinecone_api_key.arn,
+        aws_secretsmanager_secret.finnhub_api_key.arn,
+      ]
+    }]
+  })
+}
+
+# ---------------------------------------------------------------------------
+# EventBridge Scheduler — daily cron at 6 AM UTC
+# ---------------------------------------------------------------------------
+
+resource "aws_iam_role" "scheduler" {
+  name = "${var.project_name}-scheduler-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "scheduler.amazonaws.com" }
+    }]
+  })
+
+  tags = {
+    Name        = "${var.project_name}-scheduler-role"
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role_policy" "scheduler_invoke" {
+  name = "invoke-ingest-lambda"
+  role = aws_iam_role.scheduler.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["lambda:InvokeFunction"]
+      Resource = [aws_lambda_function.ingest.arn]
+    }]
+  })
+}
+
+resource "aws_scheduler_schedule" "daily_ingest" {
+  name        = "${var.project_name}-daily-ingest"
+  description = "Daily news and Reddit ingestion for tracked tickers"
+
+  flexible_time_window {
+    mode                      = "FLEXIBLE"
+    maximum_window_in_minutes = 30  # Run within 30-min window of scheduled time
+  }
+
+  # 6:00 AM UTC daily — after overnight US trading session, before market open
+  schedule_expression          = "cron(0 6 * * ? *)"
+  schedule_expression_timezone = "UTC"
+
+  target {
+    arn      = aws_lambda_function.ingest.arn
+    role_arn = aws_iam_role.scheduler.arn
+
+    # Pass empty object — Lambda reads config from env vars
+    input = jsonencode({})
+
+    retry_policy {
+      maximum_retry_attempts       = 2
+      maximum_event_age_in_seconds = 3600
+    }
+  }
+}

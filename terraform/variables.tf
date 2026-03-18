@@ -27,3 +27,21 @@ variable "log_retention_days" {
   type        = number
   default     = 7
 }
+
+variable "ingest_tickers" {
+  description = "JSON array of tickers to ingest, e.g. [{\"ticker\":\"NVDA\",\"company\":\"NVIDIA\"}]"
+  type        = string
+  default     = "[{\"ticker\":\"NVDA\",\"company\":\"NVIDIA\"}]"
+}
+
+variable "ingest_days" {
+  description = "How many days back to fetch on each ingestion run"
+  type        = number
+  default     = 1
+}
+
+variable "ingest_sources" {
+  description = "Comma-separated ingestion sources: news,reddit"
+  type        = string
+  default     = "news,reddit"
+}

@@ -23,3 +23,18 @@ output "secret_arn" {
   value       = aws_secretsmanager_secret.openai_api_key.arn
 }
 
+output "ingest_lambda_function_name" {
+  description = "Name of the ingestion Lambda function"
+  value       = aws_lambda_function.ingest.function_name
+}
+
+output "ingest_schedule_name" {
+  description = "Name of the EventBridge schedule"
+  value       = aws_scheduler_schedule.daily_ingest.name
+}
+
+output "finnhub_secret_arn" {
+  description = "ARN of the Finnhub API key secret"
+  value       = aws_secretsmanager_secret.finnhub_api_key.arn
+}
+
