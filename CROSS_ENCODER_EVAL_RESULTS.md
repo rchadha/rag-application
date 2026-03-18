@@ -149,6 +149,84 @@ The better conclusion is:
 
 - "cross-encoders were not a clear win on the current SEC-only corpus, but they may become much more valuable once the retrieval problem becomes noisier and more heterogeneous."
 
+---
+
+## Evaluation 2: Finnhub News Corpus (`news`)
+
+### Setup
+
+- Corpus: `news` (Finnhub news articles for NVDA, ingested via Pinecone)
+- Vector store: Pinecone + `text-embedding-3-small`
+- Reranker: `BAAI/bge-reranker-base`
+- Retriever candidates: top `10`
+- Final context size: top `3`
+- Evaluation set: [evals/news_retrieval_eval.json](/Users/rchadha/Documents/projects/p/rag-application/evals/news_retrieval_eval.json)
+- Questions evaluated: `8`
+
+### Results
+
+#### Baseline: dense retrieval only
+
+- `Hit@1 = 1.000`
+- `Hit@3 = 1.000`
+- `MRR = 1.000`
+
+#### Cross-encoder: `BAAI/bge-reranker-base`
+
+- `Hit@1 = 0.625`
+- `Hit@3 = 0.875`
+- `MRR = 0.750`
+
+Outcome:
+
+- dense baseline was **perfect** on all 8 questions
+- reranker degraded performance across every metric
+- stronger regression than observed on the SEC corpus
+
+### What Got Worse
+
+The reranker failed on 3 of 8 questions:
+
+**Q: "What is the demand outlook for NVIDIA AI data center products?"**
+- Baseline: expected source at rank 1 (vector score 0.849)
+- Reranked: non-expected article pushed to rank 1 (rerank score 0.944), expected source dropped to rank 2
+
+**Q: "How is NVIDIA competing against AMD and Intel?"**
+- Baseline: expected source at rank 1
+- Reranked: a closely-related but non-expected article pushed to rank 1 (rerank scores nearly identical at 0.00073 vs 0.00070 — effectively random at that scale)
+
+**Q: "What has Jensen Huang announced recently?"**
+- Baseline: expected sources at ranks 1, 2, 3
+- Reranked: all three expected sources evicted from top 3 entirely — completely different articles promoted (rerank scores 0.986, 0.895, 0.427)
+- This is the worst single-question regression observed across both evaluations
+
+### Why the Regression is Worse on News
+
+The SEC corpus is dense, structured, and long-form. Each chunk carries enough signal for the reranker to make confident relevance judgements.
+
+News articles are short headlines and summaries. The reranker saw short, overlapping text — many articles about NVDA are topically similar — making rerank scores noisy and unreliable. The dense retrieval model (`text-embedding-3-small`) had already done the hard work well; the reranker introduced noise on top.
+
+The "Jensen Huang" failure is a good example: the reranker promoted articles with high surface relevance to the query but that were not the specific sources the dense retriever had correctly identified.
+
+### Combined Conclusion Across Both Corpora
+
+| Corpus | Baseline Hit@1 | Reranked Hit@1 | Verdict |
+|--------|---------------|----------------|---------|
+| SEC filings | 0.875 | 0.750 | reranker hurt top-1 |
+| Finnhub news | **1.000** | **0.625** | reranker hurt top-1 significantly |
+
+Across both structured (SEC) and unstructured (news) corpora, `BAAI/bge-reranker-base` did not improve retrieval and in both cases reduced top-1 precision. The degradation was more severe on the news corpus, where the dense baseline was already perfect.
+
+This is not evidence that cross-encoders are universally ineffective. The likely causes here are:
+
+- Short document length in the news corpus reduces reranker signal quality
+- High topical overlap across news articles makes fine-grained reranking harder
+- `BAAI/bge-reranker-base` is a general-purpose model not tuned for financial news
+
+A domain-fine-tuned reranker or a larger model may perform differently. But the current evidence across two corpora is consistent: **the dense baseline should remain the default**.
+
+---
+
 ## Commands Used
 
 Baseline query:
