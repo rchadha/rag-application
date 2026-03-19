@@ -2,19 +2,13 @@
   "dataset": "news",
   "embedding_model": "text-embedding-3-small",
   "cross_encoder_model": "BAAI/bge-reranker-base",
-  "baseline_summary": {
-    "questions": 8,
-    "hit_at_1": 1.0,
-    "hit_at_3": 1.0,
-    "mrr": 1.0
-  },
-  "reranked_summary": {
+  "dense_summary": {
     "questions": 8,
     "hit_at_1": 0.625,
-    "hit_at_3": 0.875,
-    "mrr": 0.75
+    "hit_at_3": 1.0,
+    "mrr": 0.8125
   },
-  "baseline": [
+  "dense_detail": [
     {
       "question": "What is the latest news about NVIDIA chip sales in China?",
       "dataset": "news",
@@ -23,24 +17,24 @@
         "finnhub/NVDA/139445241",
         "finnhub/NVDA/139445240"
       ],
-      "rank": 1,
-      "hit_at_1": 1,
+      "rank": 2,
+      "hit_at_1": 0,
       "hit_at_3": 1,
-      "mrr": 1.0,
+      "mrr": 0.5,
       "results": [
         {
+          "source": "finnhub/NVDA/139450062",
+          "vector_score": 0.8681171835,
+          "rerank_score": null
+        },
+        {
           "source": "finnhub/NVDA/139445241",
-          "vector_score": 0.8662519155,
+          "vector_score": 0.866197,
           "rerank_score": null
         },
         {
-          "source": "finnhub/NVDA/139444628",
-          "vector_score": 0.8441471755000001,
-          "rerank_score": null
-        },
-        {
-          "source": "finnhub/NVDA/139445240",
-          "vector_score": 0.8368538915,
+          "source": "finnhub/NVDA/139452234",
+          "vector_score": 0.8594844045000001,
           "rerank_score": null
         }
       ]
@@ -53,24 +47,24 @@
         "finnhub/NVDA/139438378",
         "finnhub/NVDA/139433839"
       ],
-      "rank": 1,
-      "hit_at_1": 1,
+      "rank": 2,
+      "hit_at_1": 0,
       "hit_at_3": 1,
-      "mrr": 1.0,
+      "mrr": 0.5,
       "results": [
         {
+          "source": "finnhub/NVDA/139446518",
+          "vector_score": 0.823433548,
+          "rerank_score": null
+        },
+        {
           "source": "finnhub/NVDA/139444639",
-          "vector_score": 0.818906307,
+          "vector_score": 0.8191105000000001,
           "rerank_score": null
         },
         {
           "source": "finnhub/NVDA/139438378",
-          "vector_score": 0.806067,
-          "rerank_score": null
-        },
-        {
-          "source": "finnhub/NVDA/139433839",
-          "vector_score": 0.7960238454999999,
+          "vector_score": 0.806114793,
           "rerank_score": null
         }
       ]
@@ -120,17 +114,17 @@
       "results": [
         {
           "source": "finnhub/NVDA/139443603",
-          "vector_score": 0.848703861,
+          "vector_score": 0.8487688305000001,
           "rerank_score": null
         },
         {
           "source": "finnhub/NVDA/139439107",
-          "vector_score": 0.8305311205,
+          "vector_score": 0.8306635,
           "rerank_score": null
         },
         {
-          "source": "finnhub/NVDA/139434437",
-          "vector_score": 0.8195428849999999,
+          "source": "finnhub/NVDA/139450045",
+          "vector_score": 0.8200778959999999,
           "rerank_score": null
         }
       ]
@@ -154,13 +148,13 @@
           "rerank_score": null
         },
         {
-          "source": "finnhub/NVDA/139445241",
-          "vector_score": 0.76954782,
+          "source": "finnhub/NVDA/139452225",
+          "vector_score": 0.775203258,
           "rerank_score": null
         },
         {
-          "source": "finnhub/NVDA/139445237",
-          "vector_score": 0.756007731,
+          "source": "finnhub/NVDA/139445241",
+          "vector_score": 0.76954782,
           "rerank_score": null
         }
       ]
@@ -180,17 +174,17 @@
       "results": [
         {
           "source": "finnhub/NVDA/139437137",
-          "vector_score": 0.7862501145,
+          "vector_score": 0.7863598465,
           "rerank_score": null
         },
         {
           "source": "finnhub/NVDA/139443597",
-          "vector_score": 0.7850790000000001,
+          "vector_score": 0.7852425875,
           "rerank_score": null
         },
         {
           "source": "finnhub/NVDA/139437320",
-          "vector_score": 0.784477234,
+          "vector_score": 0.7845630645,
           "rerank_score": null
         }
       ]
@@ -203,24 +197,24 @@
         "finnhub/NVDA/139433839",
         "finnhub/NVDA/139443587"
       ],
-      "rank": 1,
-      "hit_at_1": 1,
+      "rank": 2,
+      "hit_at_1": 0,
       "hit_at_3": 1,
-      "mrr": 1.0,
+      "mrr": 0.5,
       "results": [
         {
+          "source": "finnhub/NVDA/139452061",
+          "vector_score": 0.7970728874999999,
+          "rerank_score": null
+        },
+        {
           "source": "finnhub/NVDA/139437316",
-          "vector_score": 0.7872469424999999,
+          "vector_score": 0.78728956,
           "rerank_score": null
         },
         {
           "source": "finnhub/NVDA/139433839",
-          "vector_score": 0.78565374,
-          "rerank_score": null
-        },
-        {
-          "source": "finnhub/NVDA/139443587",
-          "vector_score": 0.7836095395,
+          "vector_score": 0.7856402395,
           "rerank_score": null
         }
       ]
@@ -256,7 +250,13 @@
       ]
     }
   ],
-  "reranked": [
+  "dense_reranked_summary": {
+    "questions": 8,
+    "hit_at_1": 0.5,
+    "hit_at_3": 0.875,
+    "mrr": 0.6875
+  },
+  "dense_reranked_detail": [
     {
       "question": "What is the latest news about NVIDIA chip sales in China?",
       "dataset": "news",
@@ -272,18 +272,266 @@
       "results": [
         {
           "source": "finnhub/NVDA/139445241",
-          "vector_score": 0.8662519155,
+          "vector_score": 0.866197,
           "rerank_score": 0.9654710292816162
         },
         {
-          "source": "finnhub/NVDA/139445240",
-          "vector_score": 0.8368538915,
-          "rerank_score": 0.9087990522384644
+          "source": "finnhub/NVDA/139450062",
+          "vector_score": 0.8681171835,
+          "rerank_score": 0.7776134610176086
         },
         {
-          "source": "finnhub/NVDA/139445238",
-          "vector_score": 0.8339953124999999,
-          "rerank_score": 0.5630956888198853
+          "source": "finnhub/NVDA/139452234",
+          "vector_score": 0.8594844045000001,
+          "rerank_score": 0.6680103540420532
+        }
+      ]
+    },
+    {
+      "question": "What are NVIDIA's latest earnings and revenue results?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444639",
+        "finnhub/NVDA/139438378",
+        "finnhub/NVDA/139433839"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139446518",
+          "vector_score": 0.823433548,
+          "rerank_score": 0.733994722366333
+        },
+        {
+          "source": "finnhub/NVDA/139433839",
+          "vector_score": 0.796119809,
+          "rerank_score": 0.5455400347709656
+        },
+        {
+          "source": "finnhub/NVDA/139438378",
+          "vector_score": 0.806114793,
+          "rerank_score": 0.31139838695526123
+        }
+      ]
+    },
+    {
+      "question": "What are analysts saying about NVIDIA stock price target?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139433145",
+        "finnhub/NVDA/139434852",
+        "finnhub/NVDA/139437751"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139433145",
+          "vector_score": 0.843351245,
+          "rerank_score": 0.9950768351554871
+        },
+        {
+          "source": "finnhub/NVDA/139452048",
+          "vector_score": 0.831321627,
+          "rerank_score": 0.9882064461708069
+        },
+        {
+          "source": "finnhub/NVDA/139437313",
+          "vector_score": 0.821956694,
+          "rerank_score": 0.9871297478675842
+        }
+      ]
+    },
+    {
+      "question": "What is the demand outlook for NVIDIA AI data center products?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139443603",
+        "finnhub/NVDA/139435876",
+        "finnhub/NVDA/139434437"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139439107",
+          "vector_score": 0.8307430445,
+          "rerank_score": 0.9444133639335632
+        },
+        {
+          "source": "finnhub/NVDA/139434437",
+          "vector_score": 0.8196869495,
+          "rerank_score": 0.7544788122177124
+        },
+        {
+          "source": "finnhub/NVDA/139443603",
+          "vector_score": 0.848857671,
+          "rerank_score": 0.16940109431743622
+        }
+      ]
+    },
+    {
+      "question": "What export restrictions or regulations affect NVIDIA?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444628",
+        "finnhub/NVDA/139445241",
+        "finnhub/NVDA/139445237"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139444628",
+          "vector_score": 0.783143252,
+          "rerank_score": 0.4135435223579407
+        },
+        {
+          "source": "finnhub/NVDA/139452059",
+          "vector_score": 0.756961435,
+          "rerank_score": 0.013896018266677856
+        },
+        {
+          "source": "finnhub/NVDA/139445240",
+          "vector_score": 0.7492312194999999,
+          "rerank_score": 0.012993120588362217
+        }
+      ]
+    },
+    {
+      "question": "How is NVIDIA competing against AMD and Intel?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139437137",
+        "finnhub/NVDA/139443597",
+        "finnhub/NVDA/139433844"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139437320",
+          "vector_score": 0.7845630645,
+          "rerank_score": 0.0007270606001839042
+        },
+        {
+          "source": "finnhub/NVDA/139437137",
+          "vector_score": 0.7863598465,
+          "rerank_score": 0.0007004841463640332
+        },
+        {
+          "source": "finnhub/NVDA/139433844",
+          "vector_score": 0.776022166,
+          "rerank_score": 0.0006673417519778013
+        }
+      ]
+    },
+    {
+      "question": "What is the latest news about NVIDIA Blackwell GPU production?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139437316",
+        "finnhub/NVDA/139433839",
+        "finnhub/NVDA/139443587"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139443587",
+          "vector_score": 0.7836095395,
+          "rerank_score": 0.03607739135622978
+        },
+        {
+          "source": "finnhub/NVDA/139433839",
+          "vector_score": 0.78565374,
+          "rerank_score": 0.03454696014523506
+        },
+        {
+          "source": "finnhub/NVDA/139437316",
+          "vector_score": 0.7872469424999999,
+          "rerank_score": 0.02005670592188835
+        }
+      ]
+    },
+    {
+      "question": "What has Jensen Huang announced recently?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444639",
+        "finnhub/NVDA/139438380",
+        "finnhub/NVDA/139433844"
+      ],
+      "rank": null,
+      "hit_at_1": 0,
+      "hit_at_3": 0,
+      "mrr": 0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139452053",
+          "vector_score": 0.794142306,
+          "rerank_score": 0.7437540292739868
+        },
+        {
+          "source": "finnhub/NVDA/139445250",
+          "vector_score": 0.7925594745,
+          "rerank_score": 0.37318095564842224
+        },
+        {
+          "source": "finnhub/NVDA/139452059",
+          "vector_score": 0.7947204999999999,
+          "rerank_score": 0.3537207543849945
+        }
+      ]
+    }
+  ],
+  "hybrid_summary": {
+    "questions": 8,
+    "hit_at_1": 0.5,
+    "hit_at_3": 1.0,
+    "mrr": 0.7083
+  },
+  "hybrid_detail": [
+    {
+      "question": "What is the latest news about NVIDIA chip sales in China?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444628",
+        "finnhub/NVDA/139445241",
+        "finnhub/NVDA/139445240"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139450062",
+          "vector_score": 0.8681171835,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139445241",
+          "vector_score": 0.866197,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452002",
+          "vector_score": 0.842537433,
+          "rerank_score": null
         }
       ]
     },
@@ -301,19 +549,267 @@
       "mrr": 1.0,
       "results": [
         {
+          "source": "finnhub/NVDA/139438378",
+          "vector_score": 0.806114793,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139446518",
+          "vector_score": 0.823433548,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452039",
+          "vector_score": null,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What are analysts saying about NVIDIA stock price target?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139433145",
+        "finnhub/NVDA/139434852",
+        "finnhub/NVDA/139437751"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139433145",
+          "vector_score": 0.8433369399999999,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139450985",
+          "vector_score": null,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139437751",
+          "vector_score": 0.8390965165,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What is the demand outlook for NVIDIA AI data center products?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139443603",
+        "finnhub/NVDA/139435876",
+        "finnhub/NVDA/139434437"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139443603",
+          "vector_score": 0.8487688305000001,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452763",
+          "vector_score": null,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139439107",
+          "vector_score": 0.8306635,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What export restrictions or regulations affect NVIDIA?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444628",
+        "finnhub/NVDA/139445241",
+        "finnhub/NVDA/139445237"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139444628",
+          "vector_score": 0.7830772100000001,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452057",
+          "vector_score": null,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452225",
+          "vector_score": 0.7751468420000001,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "How is NVIDIA competing against AMD and Intel?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139437137",
+        "finnhub/NVDA/139443597",
+        "finnhub/NVDA/139433844"
+      ],
+      "rank": 3,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.3333333333333333,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139452700",
+          "vector_score": 0.7607820000000001,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139433146",
+          "vector_score": 0.7631896435000001,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139437137",
+          "vector_score": 0.7863598465,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What is the latest news about NVIDIA Blackwell GPU production?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139437316",
+        "finnhub/NVDA/139433839",
+        "finnhub/NVDA/139443587"
+      ],
+      "rank": 3,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.3333333333333333,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139452061",
+          "vector_score": 0.7970728874999999,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139438378",
+          "vector_score": null,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139437316",
+          "vector_score": 0.78728956,
+          "rerank_score": null
+        }
+      ]
+    },
+    {
+      "question": "What has Jensen Huang announced recently?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444639",
+        "finnhub/NVDA/139438380",
+        "finnhub/NVDA/139433844"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139452041",
+          "vector_score": 0.801500559,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139438380",
+          "vector_score": 0.8186864254999999,
+          "rerank_score": null
+        },
+        {
+          "source": "finnhub/NVDA/139452053",
+          "vector_score": 0.7940382955,
+          "rerank_score": null
+        }
+      ]
+    }
+  ],
+  "hybrid_reranked_summary": {
+    "questions": 8,
+    "hit_at_1": 0.375,
+    "hit_at_3": 0.875,
+    "mrr": 0.625
+  },
+  "hybrid_reranked_detail": [
+    {
+      "question": "What is the latest news about NVIDIA chip sales in China?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444628",
+        "finnhub/NVDA/139445241",
+        "finnhub/NVDA/139445240"
+      ],
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139445241",
+          "vector_score": 0.866197,
+          "rerank_score": 0.9654710292816162
+        },
+        {
+          "source": "finnhub/NVDA/139450062",
+          "vector_score": 0.8681171835,
+          "rerank_score": 0.7776134610176086
+        },
+        {
+          "source": "finnhub/NVDA/139452234",
+          "vector_score": 0.8594844045000001,
+          "rerank_score": 0.6680103540420532
+        }
+      ]
+    },
+    {
+      "question": "What are NVIDIA's latest earnings and revenue results?",
+      "dataset": "news",
+      "expected_sources": [
+        "finnhub/NVDA/139444639",
+        "finnhub/NVDA/139438378",
+        "finnhub/NVDA/139433839"
+      ],
+      "rank": 2,
+      "hit_at_1": 0,
+      "hit_at_3": 1,
+      "mrr": 0.5,
+      "results": [
+        {
+          "source": "finnhub/NVDA/139446518",
+          "vector_score": 0.823433548,
+          "rerank_score": 0.733994722366333
+        },
+        {
           "source": "finnhub/NVDA/139433839",
-          "vector_score": 0.7960247995,
+          "vector_score": 0.796119809,
           "rerank_score": 0.5455400347709656
         },
         {
           "source": "finnhub/NVDA/139438378",
-          "vector_score": 0.8059487345,
+          "vector_score": 0.806114793,
           "rerank_score": 0.31139838695526123
-        },
-        {
-          "source": "finnhub/NVDA/139445250",
-          "vector_score": 0.779457122,
-          "rerank_score": 0.019239045679569244
         }
       ]
     },
@@ -336,9 +832,9 @@
           "rerank_score": 0.9950768351554871
         },
         {
-          "source": "finnhub/NVDA/139437313",
-          "vector_score": 0.8219183385,
-          "rerank_score": 0.9871297478675842
+          "source": "finnhub/NVDA/139452048",
+          "vector_score": 0.8313245175,
+          "rerank_score": 0.9882064461708069
         },
         {
           "source": "finnhub/NVDA/139437324",
@@ -363,7 +859,7 @@
         {
           "source": "finnhub/NVDA/139439107",
           "vector_score": 0.8306635,
-          "rerank_score": 0.9444132447242737
+          "rerank_score": 0.9444133639335632
         },
         {
           "source": "finnhub/NVDA/139434437",
@@ -371,9 +867,9 @@
           "rerank_score": 0.7544788122177124
         },
         {
-          "source": "finnhub/NVDA/139443603",
-          "vector_score": 0.8487688305000001,
-          "rerank_score": 0.16940109431743622
+          "source": "finnhub/NVDA/139452229",
+          "vector_score": null,
+          "rerank_score": 0.5500547289848328
         }
       ]
     },
@@ -385,25 +881,25 @@
         "finnhub/NVDA/139445241",
         "finnhub/NVDA/139445237"
       ],
-      "rank": 1,
-      "hit_at_1": 1,
+      "rank": 2,
+      "hit_at_1": 0,
       "hit_at_3": 1,
-      "mrr": 1.0,
+      "mrr": 0.5,
       "results": [
         {
+          "source": "finnhub/NVDA/139452057",
+          "vector_score": null,
+          "rerank_score": 0.703667402267456
+        },
+        {
           "source": "finnhub/NVDA/139444628",
-          "vector_score": 0.7830667495,
+          "vector_score": 0.7830772100000001,
           "rerank_score": 0.4135435223579407
         },
         {
-          "source": "finnhub/NVDA/139445240",
-          "vector_score": 0.7491116225,
-          "rerank_score": 0.012993120588362217
-        },
-        {
-          "source": "finnhub/NVDA/139437319",
-          "vector_score": 0.740816593,
-          "rerank_score": 0.0037219610530883074
+          "source": "finnhub/NVDA/139452059",
+          "vector_score": 0.75690192,
+          "rerank_score": 0.013896018266677856
         }
       ]
     },
@@ -461,9 +957,9 @@
           "rerank_score": 0.03454681485891342
         },
         {
-          "source": "finnhub/NVDA/139437316",
-          "vector_score": 0.7872469424999999,
-          "rerank_score": 0.02005670592188835
+          "source": "finnhub/NVDA/139438378",
+          "vector_score": null,
+          "rerank_score": 0.027285655960440636
         }
       ]
     },
@@ -482,18 +978,18 @@
       "results": [
         {
           "source": "finnhub/NVDA/139435876",
-          "vector_score": 0.791937858,
+          "vector_score": null,
           "rerank_score": 0.9856729507446289
         },
         {
           "source": "finnhub/NVDA/139435924",
-          "vector_score": 0.7803755,
-          "rerank_score": 0.8954943418502808
+          "vector_score": null,
+          "rerank_score": 0.8954941034317017
         },
         {
-          "source": "finnhub/NVDA/139445241",
-          "vector_score": 0.7808170615000001,
-          "rerank_score": 0.42717865109443665
+          "source": "finnhub/NVDA/139452053",
+          "vector_score": 0.794142306,
+          "rerank_score": 0.7437540292739868
         }
       ]
     }

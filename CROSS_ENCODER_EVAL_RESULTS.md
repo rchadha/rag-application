@@ -263,3 +263,153 @@ A credible summary for a LinkedIn post would be:
 - Two generic MS MARCO rerankers made top-1 ranking worse.
 - A BGE reranker improved top-3 coverage from `87.5%` to `100%`, but reduced top-1 precision.
 - The lesson was not "cross-encoders always help"; it was "observability and evaluation prevented us from shipping a regression."
+
+---
+
+## Evaluation 3: Hybrid Retrieval (BM25 + Dense) with Cross-Encoder Reranking
+
+### Motivation
+
+A commonly cited "production-ready RAG" pattern recommends combining two retrieval strategies:
+
+1. **Vector semantic search** — understands intent and meaning
+2. **BM25 keyword search** — handles exact terms, ticker symbols, and specific phrases semantic search may miss
+3. **Cross-encoder reranking** — rescores the merged candidate pool for final precision
+
+The hypothesis: the reranker failed in Evaluations 1 and 2 because the dense-only candidate pool was too narrow. Give the reranker a more diverse candidate pool (dense + BM25), and it should be able to do its job better.
+
+This evaluation tests that hypothesis on the same two corpora.
+
+---
+
+### Implementation: Reciprocal Rank Fusion (RRF)
+
+Pinecone's native hybrid search requires `dotproduct` metric. Our existing index uses `cosine`, so we implemented hybrid retrieval in-application using **Reciprocal Rank Fusion** — no index rebuild, no re-embedding, zero API cost.
+
+**How it works:**
+
+1. Dense search returns top-k results ranked by vector similarity
+2. BM25 keyword search runs locally against a corpus index saved from Pinecone metadata
+3. RRF merges both lists: score = `Σ 1 / (60 + rank_i)` for each retriever a document appears in
+4. Documents that rank highly in **both** lists float to the top — agreement across retrievers is rewarded
+
+The BM25 corpus was built with `python patch_sparse_vectors.py` — it reads existing vector metadata from Pinecone, extracts text, and saves it locally. No OpenAI calls, no re-indexing.
+
+**Four retrieval modes evaluated:**
+
+| Mode | Dense | BM25 | Reranker |
+|---|:---:|:---:|:---:|
+| `dense` | ✓ | | |
+| `dense_reranked` | ✓ | | ✓ |
+| `hybrid` | ✓ | ✓ | |
+| `hybrid_reranked` | ✓ | ✓ | ✓ |
+
+---
+
+### Results: SEC Filings Corpus (`sec_filings_nvda`)
+
+- Corpus: 974 chunks from NVIDIA SEC filings
+- Embedding: `text-embedding-3-small`
+- Reranker: `BAAI/bge-reranker-base`
+- Eval set: 8 questions
+
+| Mode | Hit@1 | Hit@3 | MRR |
+|---|---|---|---|
+| `dense` | **0.875** | **0.875** | **0.875** |
+| `dense_reranked` | 0.625 | 0.875 | 0.729 |
+| `hybrid` | 0.625 | 0.875 | 0.729 |
+| `hybrid_reranked` | 0.125 | 0.875 | 0.438 |
+
+**Outcome: dense baseline wins. Every advanced strategy degraded performance.**
+
+---
+
+### Results: Finnhub News Corpus (`news`)
+
+- Corpus: ~1,100 news articles (grown since Evaluation 2 — 148 new articles added)
+- Embedding: `text-embedding-3-small`
+- Reranker: `BAAI/bge-reranker-base`
+- Eval set: 8 questions
+- Note: the baseline dropped from 1.000 (Eval 2) to 0.625 due to corpus growth — larger corpus, denser overlap, harder retrieval
+
+| Mode | Hit@1 | Hit@3 | MRR |
+|---|---|---|---|
+| `dense` | **0.625** | **1.000** | **0.812** |
+| `dense_reranked` | 0.500 | 0.875 | 0.688 |
+| `hybrid` | 0.500 | 1.000 | 0.708 |
+| `hybrid_reranked` | 0.375 | 0.875 | 0.625 |
+
+**Outcome: dense baseline wins again. Hybrid improved Hit@3 parity but hurt Hit@1. Adding the reranker on top made it worse.**
+
+---
+
+### Combined Summary: Three Evaluations, Four Approaches
+
+| Corpus | dense Hit@1 | dense_reranked | hybrid | hybrid_reranked |
+|---|---|---|---|---|
+| SEC filings | **0.875** | 0.625 | 0.625 | 0.125 |
+| Finnhub news | **0.625** | 0.500 | 0.500 | 0.375 |
+
+The dense baseline won on top-1 precision in every single comparison across both corpora and all three evaluation rounds.
+
+---
+
+### Why Hybrid + Reranking Didn't Help Here
+
+**1. The corpus characteristics work against BM25**
+
+SEC filings are formal, structured, and long-form. `text-embedding-3-small` was trained on exactly this kind of text and already captures meaning well. BM25 on this corpus adds noise — many chunks contain the same legal boilerplate, and keyword overlap does not correlate well with relevance.
+
+News articles are short (headline + summary), topically overlapping, and repetitive. BM25 scores are noisy when many articles share the same keywords.
+
+**2. RRF introduction of BM25 candidates dilutes a strong signal**
+
+When dense retrieval already returns the right document at rank 1, mixing in BM25's top-k — which may include less relevant chunks — can push the correct answer down. RRF rewards documents that appear in both lists, but if the correct document only appears in the dense list (BM25 ranked something else first), it loses ground.
+
+**3. The reranker has less to work with when given noisy candidates**
+
+In Evaluations 1–2, reranking was applied to a clean dense top-10. In Evaluation 3, it was applied to a hybrid top-10 that may include lower-quality BM25 candidates. The reranker doesn't know which retriever found each document — it just sees (query, chunk) pairs. With a noisier input pool, it makes more mistakes.
+
+---
+
+### What This Tells Us
+
+The advice to "add hybrid search and a reranker" is common. It is also frequently correct — but not universally. The benefit depends on:
+
+- **Query type**: queries with specific symbols, dates, or proper nouns benefit more from BM25. Open-ended questions about intent or strategy benefit from dense.
+- **Corpus type**: short, overlapping documents (news, social) are harder for BM25. Long-form structured documents (SEC filings) are harder for BM25 to differentiate.
+- **Baseline quality**: if your dense model is already strong on your domain, adding BM25 may introduce more noise than signal.
+
+**The more important lesson is about process, not outcome.** Without an evaluation framework, it would have been easy to ship hybrid retrieval + reranking believing the "advanced RAG" playbook guaranteed improvement. It doesn't. We measured, and the measurements told us not to ship it — at least not for these corpora and this embedding model.
+
+---
+
+### When Hybrid + Reranking Would Likely Help
+
+- Queries containing specific ticker symbols (e.g. `$NVDA`, `AMD`) where BM25 would give those exact tokens strong weight
+- Mixed-language or domain-shifted queries where dense embeddings struggle
+- A corpus where the dense baseline is weak (Hit@1 < 0.5) — there is more headroom for BM25 to contribute
+- With a **domain-fine-tuned** reranker (not a general MS MARCO or BGE model)
+- With a **larger reranker candidate pool** (k=20–50 instead of k=10), giving the reranker more diverse options
+
+---
+
+### Commands
+
+Build BM25 corpus index (one-time, free):
+```bash
+python patch_sparse_vectors.py --namespace sec_filings_nvda
+python patch_sparse_vectors.py --namespace news
+```
+
+Run full 4-mode evaluation:
+```bash
+python evaluate_cross_encoder.py --dataset sec --mode all
+python evaluate_cross_encoder.py --dataset news --mode all
+```
+
+Run a single mode:
+```bash
+python evaluate_cross_encoder.py --dataset sec --mode hybrid
+```
+

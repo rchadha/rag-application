@@ -9,3 +9,5 @@ beautifulsoup4
 docx2txt
 vaderSentiment # Sentiment analysis
 sentence-transformers # Cross-encoder reranking (optional, for evaluate_cross_encoder.py)
+rank_bm25             # BM25 keyword search for hybrid retrieval (evaluate_cross_encoder.py)
+pinecone-text         # BM25Encoder for Pinecone sparse vectors (patch_sparse_vectors.py)
