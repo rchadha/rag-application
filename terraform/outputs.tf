@@ -18,8 +18,4 @@ output "cloudwatch_log_group" {
   value       = aws_cloudwatch_log_group.lambda.name
 }
 
-output "secret_arn" {
-  description = "ARN of the OpenAI API key secret"
-  value       = aws_secretsmanager_secret.openai_api_key.arn
-}
 

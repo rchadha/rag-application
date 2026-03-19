@@ -63,31 +63,9 @@ resource "aws_ecr_lifecycle_policy" "app" {
   })
 }
 
-# Secrets Manager
-resource "aws_secretsmanager_secret" "openai_api_key" {
-  name                    = "${var.project_name}/openai-api-key"
-  description             = "OpenAI API Key for RAG Application"
-  recovery_window_in_days = 7
-
-  tags = {
-    Name        = "${var.project_name}-openai-key"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret" "pinecone_api_key" {
-  name                    = "${var.project_name}/pinecone-api-key"
-  description             = "Pinecone API Key for RAG Application"
-  recovery_window_in_days = 7
-
-  tags = {
-    Name        = "${var.project_name}-pinecone-key"
-    Environment = var.environment
-  }
-}
-
-# Note: The secret value must be set manually or via GitHub Actions
-# aws secretsmanager put-secret-value --secret-id <secret-name> --secret-string "your-key"
+# API keys are stored in SSM Parameter Store (free tier) as SecureString parameters:
+# aws ssm put-parameter --name "/{project_name}/openai-api-key" --type SecureString --value "your-key"
+# aws ssm put-parameter --name "/{project_name}/pinecone-api-key" --type SecureString --value "your-key"
 
 
 # Application Load Balancer - uncomment all resources below to re-enable ALB
@@ -223,17 +201,16 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 }
 
 resource "aws_iam_role_policy" "lambda_secrets" {
-  name = "secrets-access"
+  name = "ssm-parameter-access"
   role = aws_iam_role.lambda_exec.id
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
-      Action = ["secretsmanager:GetSecretValue"]
+      Action = ["ssm:GetParameter"]
       Resource = [
-        aws_secretsmanager_secret.openai_api_key.arn,
-        aws_secretsmanager_secret.pinecone_api_key.arn
+        "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/*"
       ]
     }]
   })
