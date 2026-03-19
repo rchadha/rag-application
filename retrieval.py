@@ -1,6 +1,5 @@
 import json
 import os
-import pickle
 import re
 from pathlib import Path
 from typing import Any
@@ -8,18 +7,14 @@ from typing import Any
 from dotenv import load_dotenv
 from langchain_pinecone import PineconeVectorStore
 from langchain_openai import OpenAIEmbeddings
+from pinecone import Pinecone
+from pinecone_text.sparse import BM25Encoder
 
 try:
     from sentence_transformers import CrossEncoder
     _RERANKER_AVAILABLE = True
 except ImportError:
     _RERANKER_AVAILABLE = False
-
-try:
-    from rank_bm25 import BM25Okapi
-    _BM25_AVAILABLE = True
-except ImportError:
-    _BM25_AVAILABLE = False
 
 load_dotenv()
 
@@ -36,7 +31,7 @@ COLLECTIONS = {
 }
 
 _reranker = None
-_bm25_indexes: dict[str, tuple] = {}  # namespace → (BM25Okapi, ids, texts)
+_bm25_encoders: dict[str, BM25Encoder] = {}
 
 
 def normalize_text(text: Any) -> str:
@@ -62,31 +57,23 @@ def _get_reranker():
     return _reranker
 
 
-def _get_bm25_index(namespace: str) -> tuple:
-    """
-    Load BM25 index for a namespace. Returns (BM25Okapi, sources_list, texts_list).
-    Requires patch_sparse_vectors.py to have been run first.
-    """
-    if not _BM25_AVAILABLE:
-        raise ImportError("rank_bm25 is not installed. Run: pip install rank_bm25")
-
-    if namespace not in _bm25_indexes:
+def _get_bm25_encoder(namespace: str) -> BM25Encoder:
+    """Load the fitted BM25Encoder for a namespace (cached in memory)."""
+    if namespace not in _bm25_encoders:
         corpus_path = BM25_MODELS_DIR / f"{namespace}_corpus.json"
         if not corpus_path.exists():
             raise FileNotFoundError(
                 f"BM25 corpus not found at {corpus_path}. "
-                f"Run: python patch_sparse_vectors.py --namespace {namespace}"
+                f"Run: python migrate_to_hybrid_index.py"
             )
         with open(corpus_path) as f:
             corpus = json.load(f)
 
-        texts = corpus["texts"]
-        sources = corpus.get("sources", corpus["ids"])  # fall back to ids if sources missing
-        tokenized = [t.lower().split() for t in texts]
-        bm25 = BM25Okapi(tokenized)
-        _bm25_indexes[namespace] = (bm25, sources, texts)
+        encoder = BM25Encoder()
+        encoder.fit(corpus["texts"])
+        _bm25_encoders[namespace] = encoder
 
-    return _bm25_indexes[namespace]
+    return _bm25_encoders[namespace]
 
 
 # ---------------------------------------------------------------------------
@@ -114,96 +101,63 @@ def retrieve_candidates(query_text: str, dataset: str = "sec", candidate_k: int 
     return candidates
 
 
-def retrieve_bm25_candidates(query_text: str, dataset: str = "sec", candidate_k: int = 10):
-    """
-    BM25 keyword search over the local corpus saved by patch_sparse_vectors.py.
-    Returns candidates in the same shape as retrieve_candidates().
-    """
-    namespace = get_collection_name(dataset)
-    bm25, sources, texts = _get_bm25_index(namespace)
-
-    tokenized_query = query_text.lower().split()
-    scores = bm25.get_scores(tokenized_query)
-
-    top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:candidate_k]
-
-    candidates = []
-    for rank, idx in enumerate(top_indices, start=1):
-        candidates.append({
-            "rank": rank,
-            "source": sources[idx],
-            "content": normalize_text(texts[idx]),
-            "bm25_score": float(scores[idx]),
-        })
-    return candidates
-
-
-def _reciprocal_rank_fusion(
-    dense_results: list[dict],
-    bm25_results: list[dict],
-    k: int = 60,
-    top_n: int = 10,
-) -> list[dict]:
-    """
-    Merge two ranked lists using Reciprocal Rank Fusion (RRF).
-
-    RRF score = Σ 1/(k + rank_i)  where k=60 is the standard smoothing constant.
-
-    A document ranked #1 in both lists scores higher than one ranked #1 in only
-    one list — it rewards consistent agreement across retrievers. Documents that
-    appear in only one list still contribute their single-list RRF score.
-    """
-    rrf_scores: dict[str, float] = {}
-    doc_data: dict[str, dict] = {}
-
-    # Index dense results by source (the authoritative document identifier)
-    for rank, doc in enumerate(dense_results, start=1):
-        key = doc["source"]
-        rrf_scores[key] = rrf_scores.get(key, 0) + 1 / (k + rank)
-        doc_data[key] = dict(doc, dense_rank=rank)
-
-    # Merge BM25 results — add to score if already seen, else create new entry
-    for rank, doc in enumerate(bm25_results, start=1):
-        key = doc["source"]
-        rrf_scores[key] = rrf_scores.get(key, 0) + 1 / (k + rank)
-        if key in doc_data:
-            doc_data[key]["bm25_rank"] = rank
-            doc_data[key]["bm25_score"] = doc.get("bm25_score")
-        else:
-            doc_data[key] = dict(doc, bm25_rank=rank)
-
-    merged = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
-    results = []
-    for new_rank, (key, rrf_score) in enumerate(merged, start=1):
-        entry = dict(doc_data[key])
-        entry["rank"] = new_rank
-        entry["rrf_score"] = round(rrf_score, 6)
-        results.append(entry)
-
-    return results
-
-
 def retrieve_hybrid_candidates(
     query_text: str,
     dataset: str = "sec",
     candidate_k: int = 10,
+    alpha: float = 0.75,
 ):
     """
-    Hybrid retrieval: merge dense (semantic) + BM25 (keyword) results via RRF.
+    Hybrid retrieval using Pinecone native sparse-dense search.
 
-    Neither retriever alone sees the full picture:
-    - Dense search excels at semantic/intent matching
-    - BM25 excels at exact keyword matching (ticker symbols, proper nouns, dates)
-    RRF rewards documents that rank highly in both, surfacing the most
-    consistently relevant results.
+    Encodes the query with both:
+      - OpenAI embeddings (dense) — captures semantic intent
+      - BM25Encoder (sparse) — captures exact keyword matches
+
+    alpha controls the blend sent to Pinecone:
+      1.0 = pure dense, 0.0 = pure BM25, 0.75 = recommended starting point
+
+    Requires dotproduct index (migrate_to_hybrid_index.py) with sparse vectors
+    already stored alongside each dense vector.
     """
-    dense = retrieve_candidates(query_text, dataset=dataset, candidate_k=candidate_k)
-    bm25 = retrieve_bm25_candidates(query_text, dataset=dataset, candidate_k=candidate_k)
-    return _reciprocal_rank_fusion(dense, bm25, top_n=candidate_k)
+    namespace = get_collection_name(dataset)
+    embedding_fn = _get_embedding_function()
+    bm25 = _get_bm25_encoder(namespace)
+
+    # Encode query with both models
+    dense_vector = embedding_fn.embed_query(query_text)
+    sparse_vector = bm25.encode_queries(query_text)
+
+    # Scale by alpha — Pinecone adds the two scores at query time
+    scaled_dense = [v * alpha for v in dense_vector]
+    scaled_sparse = {
+        "indices": sparse_vector["indices"],
+        "values": [v * (1 - alpha) for v in sparse_vector["values"]],
+    }
+
+    pc = Pinecone(api_key=os.environ["PINECONE_API_KEY"])
+    index = pc.Index(PINECONE_INDEX_NAME)
+    response = index.query(
+        vector=scaled_dense,
+        sparse_vector=scaled_sparse,
+        top_k=candidate_k,
+        namespace=namespace,
+        include_metadata=True,
+    )
+
+    candidates = []
+    for rank, match in enumerate(response.matches, start=1):
+        candidates.append({
+            "rank": rank,
+            "source": match.metadata.get("source", "unknown"),
+            "content": normalize_text(match.metadata.get("text", "")),
+            "vector_score": float(match.score),
+        })
+    return candidates
 
 
 def rerank_candidates(query_text: str, candidates: list[dict], final_k: int = 3):
-    """Cross-encoder reranking: evaluates (query, chunk) pairs for precise relevance."""
+    """Cross-encoder reranking: scores each (query, chunk) pair together."""
     if not candidates:
         return []
 
@@ -223,10 +177,12 @@ def get_top_results(
     final_k: int = 3,
     use_reranker: bool = False,
     use_hybrid: bool = False,
-    hybrid_alpha: float = 0.75,  # kept for API compatibility, not used in RRF
+    hybrid_alpha: float = 0.75,
 ):
     if use_hybrid:
-        candidates = retrieve_hybrid_candidates(query_text, dataset=dataset, candidate_k=candidate_k)
+        candidates = retrieve_hybrid_candidates(
+            query_text, dataset=dataset, candidate_k=candidate_k, alpha=hybrid_alpha
+        )
     else:
         candidates = retrieve_candidates(query_text, dataset=dataset, candidate_k=candidate_k)
 

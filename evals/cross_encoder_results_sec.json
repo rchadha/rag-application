@@ -22,17 +22,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8461805284999999,
+          "vector_score": 0.8464832305000001,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.830897659,
+          "vector_score": 0.831030369,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8293705,
+          "vector_score": 0.829669,
           "rerank_score": null
         }
       ]
@@ -51,17 +51,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.824847698,
+          "vector_score": 0.8247294425,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.819964111,
+          "vector_score": 0.8198342325,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8195275665,
+          "vector_score": 0.819521427,
           "rerank_score": null
         }
       ]
@@ -81,17 +81,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8265864549999999,
+          "vector_score": 0.8266115190000001,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.8038132490000001,
+          "vector_score": 0.803849697,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.796185106,
+          "vector_score": 0.796316147,
           "rerank_score": null
         }
       ]
@@ -110,17 +110,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8819012045,
+          "vector_score": 0.881840229,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8542515935,
+          "vector_score": 0.8543171885,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8533212244999999,
+          "vector_score": 0.8532500265,
           "rerank_score": null
         }
       ]
@@ -138,17 +138,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8581014575,
+          "vector_score": 0.858110428,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.855497062,
+          "vector_score": 0.8554258345,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.8397248685,
+          "vector_score": 0.8395547864999999,
           "rerank_score": null
         }
       ]
@@ -167,17 +167,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8216424585,
-          "rerank_score": null
-        },
-        {
-          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8032647075,
+          "vector_score": 0.8215942385,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8032647075,
+          "vector_score": 0.8033742905,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.8033742905,
           "rerank_score": null
         }
       ]
@@ -195,17 +195,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.823836714,
+          "vector_score": 0.823658943,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.81090644,
+          "vector_score": 0.8107371329999999,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.800079286,
+          "vector_score": 0.800029278,
           "rerank_score": null
         }
       ]
@@ -223,17 +223,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.861276299,
+          "vector_score": 0.861476898,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.857954353,
+          "vector_score": 0.8581643105000001,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.839753747,
+          "vector_score": 0.839777,
           "rerank_score": null
         }
       ]
@@ -242,8 +242,8 @@
   "dense_reranked_summary": {
     "questions": 8,
     "hit_at_1": 0.625,
-    "hit_at_3": 0.875,
-    "mrr": 0.7292
+    "hit_at_3": 1.0,
+    "mrr": 0.7708
   },
   "dense_reranked_detail": [
     {
@@ -259,17 +259,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8263145985,
+          "vector_score": 0.8265151980000001,
           "rerank_score": 0.5598690509796143
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.846209854,
+          "vector_score": 0.8464832305000001,
           "rerank_score": 0.30604466795921326
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8113723395,
+          "vector_score": 0.8114295,
           "rerank_score": 0.20769478380680084
         }
       ]
@@ -288,17 +288,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7959329485,
+          "vector_score": 0.795858383,
           "rerank_score": 0.019288869574666023
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.7849096655000001,
+          "vector_score": 0.784869194,
           "rerank_score": 0.001537052565254271
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.819964111,
+          "vector_score": 0.8198342325,
           "rerank_score": 0.001487263012677431
         }
       ]
@@ -318,17 +318,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.8038132490000001,
+          "vector_score": 0.803849697,
           "rerank_score": 0.874058187007904
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8265864549999999,
+          "vector_score": 0.8266115190000001,
           "rerank_score": 0.8687973022460938
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.796185106,
+          "vector_score": 0.796316147,
           "rerank_score": 0.7218704223632812
         }
       ]
@@ -347,17 +347,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8348910215,
+          "vector_score": 0.8348116875,
           "rerank_score": 0.9844077229499817
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8542515935,
+          "vector_score": 0.8543138505000001,
           "rerank_score": 0.9522275924682617
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8533212244999999,
+          "vector_score": 0.8532409670000001,
           "rerank_score": 0.948838472366333
         }
       ]
@@ -368,24 +368,24 @@
       "expected_sources": [
         "2025-11-19_10-Q_0001045810-25-000230.txt"
       ],
-      "rank": null,
+      "rank": 3,
       "hit_at_1": 0,
-      "hit_at_3": 0,
-      "mrr": 0,
+      "hit_at_3": 1,
+      "mrr": 0.3333333333333333,
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8375845255000001,
+          "vector_score": 0.837501526,
           "rerank_score": 0.6119611263275146
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.836776972,
+          "vector_score": 0.8368082045,
           "rerank_score": 0.09814924001693726
         },
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.836732775,
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.8367447855,
           "rerank_score": 0.09814924001693726
         }
       ]
@@ -404,17 +404,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.7734279335,
+          "vector_score": 0.773387432,
           "rerank_score": 0.059345729649066925
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8216949105,
+          "vector_score": 0.821586132,
           "rerank_score": 0.022515805438160896
         },
         {
           "source": "data/sec_filings_nvda/2025-04-15_8-K_0001045810-25-000082.txt",
-          "vector_score": 0.7686239779999999,
+          "vector_score": 0.768500328,
           "rerank_score": 0.011294291354715824
         }
       ]
@@ -432,17 +432,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.82386145,
+          "vector_score": 0.823658943,
           "rerank_score": 0.09143992513418198
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8109449445,
+          "vector_score": 0.8107371329999999,
           "rerank_score": 0.03444584459066391
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7967856525,
+          "vector_score": 0.796695709,
           "rerank_score": 0.01161983609199524
         }
       ]
@@ -460,17 +460,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.857954353,
+          "vector_score": 0.8581643105000001,
           "rerank_score": 0.8427482843399048
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8277170954999999,
+          "vector_score": 0.8278417585,
           "rerank_score": 0.6867266297340393
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8236594500000001,
+          "vector_score": 0.823879719,
           "rerank_score": 0.11663950979709625
         }
       ]
@@ -478,9 +478,9 @@
   ],
   "hybrid_summary": {
     "questions": 8,
-    "hit_at_1": 0.625,
-    "hit_at_3": 0.875,
-    "mrr": 0.7292
+    "hit_at_1": 0.875,
+    "hit_at_3": 1.0,
+    "mrr": 0.9167
   },
   "hybrid_detail": [
     {
@@ -496,17 +496,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8102788925,
+          "vector_score": 0.587542951,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": null,
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.573910594,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8113723395,
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.558925569,
           "rerank_score": null
         }
       ]
@@ -524,18 +524,18 @@
       "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.786036849,
-          "rerank_score": null
-        },
-        {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7914702295,
+          "vector_score": 0.520612836,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7959329485,
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.516030848,
+          "rerank_score": null
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.51182574,
           "rerank_score": null
         }
       ]
@@ -554,18 +554,18 @@
       "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7787544129999999,
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.53548,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.7772524654999999,
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.522883415,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7814148665,
+          "vector_score": 0.509211421,
           "rerank_score": null
         }
       ]
@@ -583,18 +583,18 @@
       "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.803300947,
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.67767632,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8090757129999999,
+          "vector_score": 0.638587713,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7966735,
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.635988712,
           "rerank_score": null
         }
       ]
@@ -612,17 +612,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.835177362,
+          "vector_score": 0.553698301,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.8365130000000001,
+          "vector_score": 0.550209403,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.835809201,
+          "vector_score": 0.528654754,
           "rerank_score": null
         }
       ]
@@ -634,24 +634,24 @@
         "2025-05-28_10-Q_0001045810-25-000116.txt",
         "2025-08-27_10-Q_0001045810-25-000209.txt"
       ],
-      "rank": 2,
-      "hit_at_1": 0,
+      "rank": 1,
+      "hit_at_1": 1,
       "hit_at_3": 1,
-      "mrr": 0.5,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.773150176,
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.56084156,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7741340995,
+          "vector_score": 0.537974656,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7744529245,
+          "vector_score": 0.537974656,
           "rerank_score": null
         }
       ]
@@ -662,24 +662,24 @@
       "expected_sources": [
         "2025-08-27_10-Q_0001045810-25-000209.txt"
       ],
-      "rank": null,
-      "hit_at_1": 0,
-      "hit_at_3": 0,
-      "mrr": 0,
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7947711049999999,
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.56207341,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.7958271800000001,
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.509016,
           "rerank_score": null
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.794795245,
+          "vector_score": 0.502953649,
           "rerank_score": null
         }
       ]
@@ -697,17 +697,17 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.82290259,
+          "vector_score": 0.663291216,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8236594500000001,
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.62729466,
           "rerank_score": null
         },
         {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.8225110175,
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.627172887,
           "rerank_score": null
         }
       ]
@@ -715,9 +715,9 @@
   ],
   "hybrid_reranked_summary": {
     "questions": 8,
-    "hit_at_1": 0.125,
+    "hit_at_1": 0.75,
     "hit_at_3": 0.875,
-    "mrr": 0.4375
+    "mrr": 0.7917
   },
   "hybrid_reranked_detail": [
     {
@@ -726,25 +726,25 @@
       "expected_sources": [
         "2026-02-25_10-K_0001045810-26-000021.txt"
       ],
-      "rank": 2,
-      "hit_at_1": 0,
+      "rank": 1,
+      "hit_at_1": 1,
       "hit_at_3": 1,
-      "mrr": 0.5,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8113723395,
-          "rerank_score": 0.20769478380680084
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.558797777,
+          "rerank_score": 0.5598690509796143
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.8102788925,
-          "rerank_score": 0.005617491900920868
+          "vector_score": 0.58743614,
+          "rerank_score": 0.30604466795921326
         },
         {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": null,
-          "rerank_score": 0.000430903397500515
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.541257501,
+          "rerank_score": 0.20769478380680084
         }
       ]
     },
@@ -762,18 +762,18 @@
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7959329485,
+          "vector_score": 0.496357262,
           "rerank_score": 0.019288869574666023
         },
         {
           "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.7849096655000001,
+          "vector_score": 0.44894293,
           "rerank_score": 0.001537052565254271
         },
         {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.786036849,
-          "rerank_score": 0.00011725987133104354
+          "vector_score": 0.51182574,
+          "rerank_score": 0.001487263012677431
         }
       ]
     },
@@ -791,19 +791,19 @@
       "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7787544129999999,
-          "rerank_score": 0.46697738766670227
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.499549896,
+          "rerank_score": 0.874058187007904
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7814148665,
-          "rerank_score": 0.142562597990036
+          "vector_score": 0.53548,
+          "rerank_score": 0.8687973022460938
         },
         {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.781385541,
-          "rerank_score": 0.142562597990036
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.522883415,
+          "rerank_score": 0.7218704223632812
         }
       ]
     },
@@ -814,25 +814,25 @@
         "2025-11-19_10-Q_0001045810-25-000230.txt",
         "2026-02-25_10-K_0001045810-26-000021.txt"
       ],
-      "rank": 2,
-      "hit_at_1": 0,
+      "rank": 1,
+      "hit_at_1": 1,
       "hit_at_3": 1,
-      "mrr": 0.5,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": null,
-          "rerank_score": 0.630844235420227
-        },
-        {
           "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.803214699,
-          "rerank_score": 0.009192924946546555
+          "vector_score": 0.606159,
+          "rerank_score": 0.9844077229499817
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.8089617195000001,
-          "rerank_score": 0.006547817029058933
+          "vector_score": 0.638587713,
+          "rerank_score": 0.9522275924682617
+        },
+        {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.635988712,
+          "rerank_score": 0.948838472366333
         }
       ]
     },
@@ -842,25 +842,25 @@
       "expected_sources": [
         "2025-11-19_10-Q_0001045810-25-000230.txt"
       ],
-      "rank": 3,
+      "rank": null,
       "hit_at_1": 0,
-      "hit_at_3": 1,
-      "mrr": 0.3333333333333333,
+      "hit_at_3": 0,
+      "mrr": 0,
       "results": [
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.8375845255000001,
+          "vector_score": 0.520106256,
           "rerank_score": 0.6119611263275146
         },
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.836732775,
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.521579385,
           "rerank_score": 0.09814924001693726
         },
         {
-          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.835177362,
-          "rerank_score": 0.05247315391898155
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.521484,
+          "rerank_score": 0.09814924001693726
         }
       ]
     },
@@ -871,25 +871,25 @@
         "2025-05-28_10-Q_0001045810-25-000116.txt",
         "2025-08-27_10-Q_0001045810-25-000209.txt"
       ],
-      "rank": 2,
-      "hit_at_1": 0,
+      "rank": 1,
+      "hit_at_1": 1,
       "hit_at_3": 1,
-      "mrr": 0.5,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2025-04-15_8-K_0001045810-25-000082.txt",
-          "vector_score": 0.7685521245,
-          "rerank_score": 0.011294291354715824
-        },
-        {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.7730575,
-          "rerank_score": 0.003281533718109131
-        },
-        {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.7741340995,
-          "rerank_score": 0.0030249704141169786
+          "vector_score": 0.560853,
+          "rerank_score": 0.022515805438160896
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
+          "vector_score": 0.428523421,
+          "rerank_score": 0.012341486290097237
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-04-15_8-K_0001045810-25-000082.txt",
+          "vector_score": 0.454085588,
+          "rerank_score": 0.011294291354715824
         }
       ]
     },
@@ -899,25 +899,25 @@
       "expected_sources": [
         "2025-08-27_10-Q_0001045810-25-000209.txt"
       ],
-      "rank": 3,
-      "hit_at_1": 0,
+      "rank": 1,
+      "hit_at_1": 1,
       "hit_at_3": 1,
-      "mrr": 0.3333333333333333,
+      "mrr": 1.0,
       "results": [
         {
-          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
-          "vector_score": 0.7958974999999999,
-          "rerank_score": 0.01017849799245596
+          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
+          "vector_score": 0.56207341,
+          "rerank_score": 0.09143992513418198
+        },
+        {
+          "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
+          "vector_score": 0.502953649,
+          "rerank_score": 0.03444584459066391
         },
         {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": 0.7948218284999999,
-          "rerank_score": 0.0023770162370055914
-        },
-        {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.7948218284999999,
-          "rerank_score": 0.0023770162370055914
+          "vector_score": 0.471734077,
+          "rerank_score": 0.027104083448648453
         }
       ]
     },
@@ -927,25 +927,25 @@
       "expected_sources": [
         "2026-02-25_10-K_0001045810-26-000021.txt"
       ],
-      "rank": null,
-      "hit_at_1": 0,
-      "hit_at_3": 0,
-      "mrr": 0,
+      "rank": 1,
+      "hit_at_1": 1,
+      "hit_at_3": 1,
+      "mrr": 1.0,
       "results": [
         {
+          "source": "data/sec_filings_nvda/2026-02-25_10-K_0001045810-26-000021.txt",
+          "vector_score": 0.61181283,
+          "rerank_score": 0.8427482843399048
+        },
+        {
           "source": "data/sec_filings_nvda/2025-11-19_10-Q_0001045810-25-000230.txt",
-          "vector_score": null,
+          "vector_score": 0.62729466,
           "rerank_score": 0.23505792021751404
         },
         {
           "source": "data/sec_filings_nvda/2025-05-28_10-Q_0001045810-25-000116.txt",
-          "vector_score": 0.823605329,
+          "vector_score": 0.622187614,
           "rerank_score": 0.11663950979709625
-        },
-        {
-          "source": "data/sec_filings_nvda/2025-08-27_10-Q_0001045810-25-000209.txt",
-          "vector_score": 0.822460592,
-          "rerank_score": 0.11482667922973633
         }
       ]
     }

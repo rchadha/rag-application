@@ -6,7 +6,7 @@ After getting the basics working, I started reading about how to make retrieval 
 
 > *"To graduate from a simple demo to a production-ready system, implement Hybrid Retrieval (vector search + BM25 keyword search) combined with Cross-Encoder Reranking. This consistently and dramatically improves precision."*
 
-That sounded reasonable to me. So I built it. Then I measured it. Then I got surprised.
+That sounded reasonable to me. So I built it. Then I measured it. Then I got surprised — in both directions.
 
 ---
 
@@ -43,7 +43,7 @@ This setup lets me compare any two retrieval approaches objectively. Without it,
 
 ---
 
-## Phase 1: Testing Cross-Encoder Reranking
+## Phase 1: Testing Cross-Encoder Reranking Alone
 
 A cross-encoder reranker works differently from the initial vector search. Instead of comparing a single query embedding against thousands of document embeddings in one shot, it takes each (query, document) pair and evaluates them together through a transformer model. It's slower, but in theory more accurate because it can model the interaction between the query and the document directly.
 
@@ -52,133 +52,169 @@ The standard pattern:
 2. Cross-encoder rescores all 10 by reading the full query + chunk together (slower but smarter)
 3. Return the top 3 from the reranked list
 
-I used `BAAI/bge-reranker-base`, which is a well-regarded open-source reranker.
+I used `BAAI/bge-reranker-base`, a well-regarded open-source reranker.
 
-**The results:**
+**Results on SEC filings:**
 
 | Approach | Hit@1 | Hit@3 | MRR |
 |---|---|---|---|
 | Dense baseline | **0.875** | 0.875 | **0.875** |
 | Dense + Reranker | 0.625 | **1.000** | 0.771 |
 
-The reranker actually made top-1 precision *worse*. Hit@1 dropped from 87.5% to 62.5%.
+The reranker made top-1 precision *worse*. Hit@1 dropped from 87.5% to 62.5%.
 
-There was one silver lining: Hit@3 improved from 87.5% to 100%. The reranker did find that one question the baseline was missing in the top 3 — it just shuffled the rankings in a way that hurt the #1 slot for other questions.
+There was one silver lining: Hit@3 improved to 100%. The reranker found the document the baseline was missing — it just shuffled the top rankings in a way that hurt precision for other questions.
 
-My instinct at this point was: maybe the reranker is working with too narrow a candidate pool. If the right document wasn't in the dense top 10, the reranker can't help. What if I give it better raw material?
+My theory: the reranker is working with too narrow a candidate pool. If the dense top-10 doesn't include the right document, the reranker has nothing to work with. What if I give it a more diverse set of candidates by combining two different retrieval methods?
 
 ---
 
-## Phase 2: Adding Hybrid Retrieval (BM25 + Dense + RRF)
+## Phase 2: Proper Hybrid Retrieval — Dense + BM25
 
-This is where the "production-ready" advice comes in. The idea is:
+This is the core of the "production-ready" recommendation. The idea is that two retrieval strategies complement each other:
 
-- Dense semantic search is great at understanding *intent* ("what did NVIDIA say about their competitive position") but sometimes misses documents that contain the exact keywords the user typed
-- BM25 keyword search is great at exact matches (ticker symbols, specific product names, dates) but doesn't understand meaning
-- Combining them gives you the strengths of both
+- **Dense semantic search** understands *intent* — "what did NVIDIA say about competitive risk" finds relevant chunks even if they don't use those exact words
+- **BM25 keyword search** handles *exact terms* — ticker symbols like `$NVDA`, product names like `H100`, specific dates, or precise phrases that semantic search might treat as similar to other terms
 
-**The implementation challenge:** Pinecone's native hybrid search (sparse + dense vectors) requires an index with `dotproduct` metric. My existing index uses `cosine`. Rebuilding the index would mean re-embedding 974 document chunks and paying for those OpenAI API calls again.
+Combining them gives you candidates that either retriever alone would miss.
 
-Instead, I implemented hybrid retrieval using **Reciprocal Rank Fusion (RRF)** entirely in Python. No Pinecone changes, no re-embedding, zero API cost.
+### The Implementation
 
-Here's how RRF works:
+Pinecone's native hybrid search requires an index with `dotproduct` metric. My existing index used `cosine` — and these two metrics are not interchangeable in Pinecone's query API.
+
+The good news: **I didn't need to re-embed anything.** Pinecone stores the dense vector values alongside metadata. I could fetch all 974 vectors, add BM25 sparse vectors to each one, then migrate to a new `dotproduct` index — reusing the exact same dense embeddings. Zero OpenAI API calls.
 
 ```python
-def reciprocal_rank_fusion(dense_results, bm25_results, k=60):
-    scores = {}
+# Fetch existing vectors including their dense float values
+response = index.fetch(ids=batch_ids, namespace=namespace)
+for vec_id, vec_data in response.vectors.items():
+    vectors.append({
+        "id": vec_id,
+        "values": vec_data.values,     # reuse existing dense embeddings
+        "text": vec_data.metadata["text"],
+    })
 
-    for rank, doc in enumerate(dense_results, start=1):
-        scores[doc["source"]] = scores.get(doc["source"], 0) + 1 / (k + rank)
+# Fit BM25 on corpus text, generate sparse vectors
+encoder = BM25Encoder()
+encoder.fit([v["text"] for v in vectors])
+sparse_vectors = encoder.encode_documents([v["text"] for v in vectors])
 
-    for rank, doc in enumerate(bm25_results, start=1):
-        scores[doc["source"]] = scores.get(doc["source"], 0) + 1 / (k + rank)
-
-    return sorted(scores.items(), key=lambda x: x[1], reverse=True)
+# Upsert to new dotproduct index with BOTH dense + sparse
+index.upsert(vectors=[{
+    "id": v["id"],
+    "values": v["values"],          # original dense embedding unchanged
+    "sparse_values": sparse,        # new BM25 sparse vector
+    "metadata": v["metadata"],
+} for v, sparse in zip(vectors, sparse_vectors)])
 ```
 
-The `k=60` is a standard smoothing constant. The formula means: a document ranked #1 in both lists scores roughly `2 / 61 = 0.033`, while a document ranked #1 in only one list scores `1 / 61 = 0.016`. Documents that both retrievers agree on float to the top.
+One thing worth knowing: **dotproduct with unit-normalized vectors is mathematically identical to cosine similarity.** OpenAI embeddings are already unit-normalized, so switching to `dotproduct` doesn't change the quality of dense-only queries at all. You get hybrid search capability without any degradation to existing behavior.
 
-For the BM25 side, I used the `rank_bm25` Python library. I fetched all existing document texts from Pinecone metadata (they're stored there by LangChain) and built a local BM25 index — no external service needed.
+At query time, both vectors are scaled by `alpha` to control the blend:
 
-**The results across all 4 modes:**
+```python
+def retrieve_hybrid(query, alpha=0.75):
+    dense_vector = embedding_model.embed_query(query)
+    sparse_vector = bm25_encoder.encode_queries(query)
+
+    # Scale: alpha=0.75 means 75% semantic, 25% keyword
+    scaled_dense = [v * alpha for v in dense_vector]
+    scaled_sparse = {
+        "indices": sparse_vector["indices"],
+        "values": [v * (1 - alpha) for v in sparse_vector["values"]],
+    }
+
+    return pinecone_index.query(
+        vector=scaled_dense,
+        sparse_vector=scaled_sparse,
+        top_k=10,
+    )
+```
+
+---
+
+## The Results
+
+Running all four modes on the SEC corpus:
 
 | Mode | Hit@1 | Hit@3 | MRR |
 |---|---|---|---|
-| Dense (baseline) | **0.875** | 0.875 | **0.875** |
-| Dense + Reranker | 0.625 | 0.875 | 0.729 |
-| Hybrid RRF | 0.625 | 0.875 | 0.729 |
-| Hybrid RRF + Reranker | 0.125 | 0.875 | 0.438 |
+| Dense (baseline) | 0.875 | 0.875 | 0.875 |
+| Dense + Reranker | 0.625 | 1.000 | 0.771 |
+| **Hybrid** | **0.875** | **1.000** | **0.917** |
+| Hybrid + Reranker | 0.750 | 0.875 | 0.792 |
 
-The dense baseline won. On every metric that matters for a user getting the right answer first.
+Hybrid retrieval matched the dense baseline on Hit@1 while improving Hit@3 to 100% and MRR from 0.875 to 0.917. That's a meaningful improvement — better coverage and better average ranking with no regression on top-1 precision.
 
-I also ran the same evaluation on my Finnhub news corpus (about 1,100 financial news articles):
+The hypothesis held: hybrid gave the reranker better raw material. But interestingly, the reranker still didn't improve things further — `hybrid_reranked` actually dropped from `hybrid`. The reranker seems to be introducing more noise than signal even with the richer candidate pool.
+
+**On the news corpus (1,100+ Finnhub articles), the picture is different:**
 
 | Mode | Hit@1 | Hit@3 | MRR |
 |---|---|---|---|
 | Dense (baseline) | **0.625** | **1.000** | **0.812** |
 | Dense + Reranker | 0.500 | 0.875 | 0.688 |
-| Hybrid RRF | 0.500 | 1.000 | 0.708 |
-| Hybrid RRF + Reranker | 0.375 | 0.875 | 0.625 |
+| Hybrid | 0.500 | 0.875 | 0.688 |
+| Hybrid + Reranker | 0.375 | 0.875 | 0.625 |
 
-Same story. Dense wins.
+Dense wins across the board on news. Hybrid didn't help here, and the reranker hurt in both modes.
 
 ---
 
-## Why Didn't It Work?
+## Why Did Hybrid Help on SEC but Not News?
 
-After sitting with this for a while, I think the answer comes down to **corpus characteristics**.
+The difference comes down to document characteristics.
 
-**On the SEC filings:** These documents are formal, structured, and long-form. `text-embedding-3-small` was trained on exactly this kind of text. The dense retriever already has strong semantic understanding of legal and financial language. BM25 over SEC filings adds noise — every chunk contains the same boilerplate words ("NVIDIA", "fiscal year", "risk factors") so keyword scores don't discriminate well between relevant and irrelevant chunks.
+**SEC filings are long-form and structured.** Each chunk is several paragraphs. BM25 can meaningfully differentiate between chunks — one chunk discusses supply chain risk, another discusses data center strategy, and the keyword distributions are genuinely different. Combining BM25's keyword signal with dense semantic signal finds better candidates.
 
-**On the news corpus:** Articles are short, and many of them are topically similar — lots of articles mention "NVIDIA H100" or "data center demand" without being the most relevant to any specific question. BM25 latches onto the keyword overlap without understanding which article is actually about the query's intent.
+**News articles are short and topically overlapping.** A headline plus a 3-sentence summary. Hundreds of articles all containing "NVIDIA", "H100", "data center", "Jensen Huang". BM25 can barely differentiate between them because the keyword distributions are nearly identical across the whole corpus. It introduces candidates that look keyword-relevant but aren't actually the best match for the query's intent.
 
-**On the reranker failing on top of hybrid:** The reranker got a worse set of candidates to work with. When I diluted the clean dense top-10 with BM25 results that included lower-quality matches, the reranker had to pick from a noisier pool — and it made more mistakes as a result.
-
-The hypothesis was right in theory: the reranker needs better raw material. But the BM25 didn't provide better material for *this specific corpus type*. It provided different material, and different turned out to be worse.
+**Why the reranker still didn't help even with hybrid candidates:** The reranker is a general-purpose model (`BAAI/bge-reranker-base`) trained on MS MARCO web search queries. It wasn't fine-tuned for financial documents. On short, topically similar news articles, its confidence scores cluster close together — the difference between rank 1 and rank 3 in reranker score might be 0.001 — and at that resolution, the rankings are effectively random.
 
 ---
 
 ## What I Actually Learned
 
-**1. Dense retrieval on a good embedding model is hard to beat on structured text.**
+**1. The techniques in the playbook are real. The claim that they "consistently and dramatically improve precision" is not.**
 
-If your documents are formal, professional, and consistently written — SEC filings, legal contracts, technical documentation, academic papers — a good embedding model probably already captures what matters. BM25 is less likely to help and may hurt.
+Hybrid retrieval genuinely improved my SEC corpus results. The reranker genuinely improved Hit@3 in Phase 1. These are real tools that work. But whether they help on *your* data depends on your corpus, your query patterns, and your baseline.
 
-**2. Hybrid retrieval is more valuable when queries are lexically specific.**
+**2. Corpus characteristics determine which techniques help.**
 
-If users are likely to search for exact ticker symbols (`$NVDA`), product version numbers (`H100 SXM5`), or proper nouns that embeddings might treat as semantically similar to other names, BM25 would add real value. My eval questions were intentionally conceptual ("what did NVIDIA say about...") which plays to dense's strengths.
+- Long-form, structured documents → hybrid retrieval more likely to help (BM25 can differentiate)
+- Short, overlapping documents → dense alone is probably better (BM25 adds noise)
+- Strong dense baseline → reranker has little room to improve and may hurt
+- Weak dense baseline → reranker has more room and may be worth trying
 
 **3. Evaluation is not optional — it's the work.**
 
-If I hadn't built the eval framework before adding the reranker, I would have shipped a regression. The "advanced technique" felt like an improvement because I was implementing something more sophisticated. But sophisticated ≠ better. Measurement is the only thing that tells you which it is.
+Without a labeled eval set, I would have shipped hybrid + reranker for both corpora because it "felt" like an improvement. It would have been a regression on news. Measurement is what prevents shipping regressions disguised as features.
 
-**4. The result that looks like failure is the result that teaches you something.**
+**4. "Advanced" and "better" are not the same thing.**
 
-Every blog post you read about RAG shows the technique working. This one doesn't. But I now have a precise, repeatable understanding of what my retrieval system does on my specific data. That's more valuable than a technique that made a number go up once and I don't understand why.
+The reranker never improved Hit@1 across any combination I tried. That's a real finding about this specific setup — not evidence that rerankers are useless, but evidence that this reranker on this corpus needs either a larger candidate pool, a domain fine-tuned model, or a different query distribution.
 
 ---
 
 ## What I'd Try Next
 
-I'm not done with this. There are specific conditions under which I'd expect hybrid + reranking to help:
+- **Larger eval set** — 8 questions is a starting point, not a definitive answer
+- **Queries with specific terms** — BM25's strength is exact keyword matching; I never tested queries like "What did NVIDIA say about H100 SXM5 supply in Q3 FY2026?" where BM25 should clearly outperform dense
+- **Domain fine-tuned reranker** — a reranker trained on financial Q&A would likely make better decisions on these documents
+- **Larger candidate pool** — k=20 or k=50 before reranking, giving the cross-encoder more to work with
 
-- A **larger eval set** (8 questions isn't much — some of these effects could be noise)
-- Questions that include **specific entity names or dates** — BM25 should shine there
-- A **domain-fine-tuned reranker** (the BGE and MS MARCO models are general-purpose; a reranker fine-tuned on financial Q&A could behave differently)
-- **Larger candidate pool** before reranking (top 20 or 50 instead of top 10)
-
-But I'll measure those too before shipping any of them.
+I'll measure all of those too before shipping any of them.
 
 ---
 
 ## The Takeaway
 
-The "production-ready RAG" playbook is real advice. Hybrid retrieval and cross-encoder reranking do help — in the right context. But "the right context" is something you can only know by measuring on your own data, with your own queries, against your own quality bar.
+The advice to add hybrid retrieval and a cross-encoder reranker is genuinely good advice — for the right corpus. The mistake is treating it as universally applicable.
 
-If there's one thing worth adding to your RAG project before you add any advanced retrieval technique, it's an evaluation dataset. Write 20 questions. Identify expected sources. Run it before and after every change.
+The thing that actually makes a RAG system production-ready isn't the sophistication of the retrieval strategy. It's knowing, with evidence, whether your retrieval strategy is working. That requires an evaluation framework built before you start optimizing.
 
-That's the thing that actually makes a system production-ready.
+Write the questions first. Measure before and after every change. Let the numbers tell you what to ship.
 
 ---
 
-*The full evaluation code, results, and implementation are in the project repo. The BM25 corpus indexer, the RRF implementation, and the 4-mode evaluation script are all there if you want to run this on your own data.*
+*The full evaluation code, migration script, and results are in the project repo. Four retrieval modes, two corpora, reproducible with a single command.*
