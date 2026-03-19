@@ -105,11 +105,7 @@ jobs:
 
       - name: Verify deployment
         run: |
-          API_URL=$(aws apigatewayv2 get-apis \
-            --query "Items[?Name=='rag-application-api'].ApiEndpoint" \
-            --output text --region ${{ env.AWS_REGION }})
-          echo "API URL: $API_URL"
-          curl -f "$API_URL/health"
+          curl -f "https://l2wdqgt2dg.execute-api.us-east-1.amazonaws.com/health"
           echo "Deployment successful!"
 
   terraform-plan:
