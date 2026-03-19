@@ -1,4 +1,4 @@
-name: Deploy to AWS ECS
+name: Deploy to AWS Lambda
 
 on:
   push:
@@ -14,9 +14,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: rag-application
-  ECS_CLUSTER: rag-application-cluster
-  ECS_SERVICE: rag-application-service
-  CONTAINER_NAME: rag-application-container
+  LAMBDA_FUNCTION_NAME: rag-application
 
 jobs:
   test:
@@ -73,13 +71,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # Option 1: Using OIDC (recommended - no long-lived credentials)
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
-
-          # Option 2: Using access keys (uncomment if not using OIDC)
-          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -91,54 +84,32 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build Docker image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-          # Push to ECR
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Download current task definition
+      - name: Update Lambda function image
         run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECR_REPOSITORY }} \
-            --query taskDefinition > task-definition.json
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --image-uri ${{ steps.build-image.outputs.image }} \
+            --region ${{ env.AWS_REGION }}
 
-      - name: Update task definition with new image
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy to Amazon ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+      - name: Wait for Lambda update to complete
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --region ${{ env.AWS_REGION }}
 
       - name: Verify deployment
         run: |
-          # Wait a bit for service to stabilize
-          sleep 30
-
-          # Get ALB DNS
-          ALB_DNS=$(aws elbv2 describe-load-balancers \
-            --names rag-application-alb \
-            --query 'LoadBalancers[0].DNSName' \
-            --output text)
-
-          echo "Application URL: http://$ALB_DNS"
-
-          # Test health endpoint
-          curl -f http://$ALB_DNS/health || exit 1
-
+          API_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='rag-application-api'].ApiEndpoint" \
+            --output text --region ${{ env.AWS_REGION }})
+          echo "API URL: $API_URL"
+          curl -f "$API_URL/health"
           echo "Deployment successful!"
 
   terraform-plan:
@@ -190,7 +161,6 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           script: |
-            const fs = require('fs');
             const output = `#### Terraform Plan
             <details><summary>Show Plan</summary>
 
