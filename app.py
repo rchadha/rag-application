@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from query_data import query_database
+from retrieval import COLLECTIONS
 import os
 import boto3
 from botocore.exceptions import ClientError
+from pinecone import Pinecone
 
 
 _secrets_loaded = False
@@ -40,6 +42,40 @@ CORS(app) # Enable CORS for all routes
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'healthy'}), 200
+
+@app.route('/status', methods=['GET'])
+def status():
+    _load_secrets()
+    pc = Pinecone(api_key=os.environ.get("PINECONE_API_KEY", ""))
+    index = pc.Index(os.environ.get("PINECONE_INDEX_NAME", "rag-application"))
+
+    result = {}
+    for dataset, namespace in COLLECTIONS.items():
+        try:
+            stats = index.describe_index_stats()
+            count = stats.namespaces.get(namespace, {}).get("vector_count", 0) if stats.namespaces else 0
+
+            # Fetch a sample to find latest published_at
+            response = index.query(
+                vector=[0.0] * 1536,
+                top_k=10,
+                namespace=namespace,
+                include_metadata=True
+            )
+            dates = [
+                m.metadata.get("published_at")
+                for m in response.matches
+                if m.metadata.get("published_at")
+            ]
+            latest = max(dates) if dates else None
+        except Exception as e:
+            print(f"Warning: could not get status for {namespace}: {e}")
+            count = 0
+            latest = None
+
+        result[dataset] = {"latest": latest, "count": count}
+
+    return jsonify(result)
 
 @app.route('/query', methods=['POST'])
 def query():
