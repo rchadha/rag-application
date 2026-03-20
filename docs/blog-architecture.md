@@ -18,17 +18,20 @@ These two flows share the vector database (Pinecone) but are otherwise completel
 ```
 INGESTION FLOW
 ──────────────
-Local files (SEC, Earnings) ──────────────────────┐
-                                                   ▼
-Finnhub News API ──► ingest_social.py ──► Pinecone (vector DB)
-                                                   ▲
-                                         (4 namespaces)
+Local files (SEC, Earnings) ──► create_database.py ──────────┐
+                                                              ▼
+Finnhub News API ──┐                                 Pinecone (vector DB)
+                   ├──► ingest_social.py ────────────────────►│
+Reddit API ────────┘         ▲                       (4 namespaces)
+                             │
+                   EventBridge Scheduler
+                   (daily 6 AM UTC / 2 AM ET)
 
 QUERY FLOW
 ──────────
 User ──► Next.js (Vercel) ──► API Gateway ──► Lambda ──► Flask app
-                                                              │
-                                                    retrieval.py (Pinecone search)
+                                   │                          │
+                              GET /status              retrieval.py (Pinecone)
                                                               │
                                                     query_data.py (GPT-4o)
                                                               │
@@ -68,11 +71,15 @@ Every vector was generated using OpenAI's `text-embedding-3-small` model (1536 d
 
 This is a manual, run-once operation. You update it when new filings are released.
 
-### Dynamic Data — News (Daily)
+### Dynamic Data — News and Social (Daily, Automated)
 
-`ingest_social.py` is the automated ingestion pipeline. It hits the Finnhub company news API, runs each article through VADER sentiment analysis, and upserts to the `news` namespace.
+`ingest_social.py` handles both Finnhub news and Reddit social content. It runs automatically every day via an **EventBridge Scheduler** cron at **6 AM UTC (2 AM ET)** — after the US overnight session, before market open.
 
-The smart part is deduplication: before generating any OpenAI embeddings, the pipeline computes deterministic MD5 IDs for each article, fetches which IDs already exist in Pinecone, and only embeds the new ones. This saves API costs on repeat runs.
+**Finnhub News**: fetches company news articles for a given ticker, enriches each with VADER sentiment scores (positive/neutral/negative + compound score), and upserts to the `news` namespace.
+
+**Reddit**: pulls posts from five finance subreddits — r/investing, r/stocks, r/wallstreetbets, r/SecurityAnalysis, r/StockMarket — using Reddit's free public JSON API (no credentials required). Posts mentioning the ticker are scored for sentiment and upserted to the `social` namespace.
+
+The smart part is deduplication: before generating any OpenAI embeddings, the pipeline computes deterministic MD5 IDs for each document, fetches which IDs already exist in Pinecone, and only embeds the new ones. This avoids paying for re-embedding content already in the index.
 
 ```python
 # Pseudo-code of the dedup logic
@@ -82,7 +89,17 @@ new_articles = [a for a in articles if its_id not in existing]
 # Only call OpenAI embeddings for new_articles
 ```
 
-Each news document gets enriched metadata: ticker symbol, company name, publisher, publish timestamp, and sentiment scores (compound score + label: positive/neutral/negative).
+### Automated Cron — EventBridge Scheduler
+
+The daily ingestion is triggered by an AWS EventBridge Scheduler. It calls a separate Lambda function (`rag-application-ingest`) using a different entrypoint (`lambda_ingest_handler.handler`) from the same Docker image. This keeps ingestion and query serving fully isolated — a slow ingestion run can't block a user query.
+
+The schedule, tickers, and sources are all configurable via Terraform variables:
+
+```hcl
+variable "ingest_tickers" { default = "[{\"ticker\":\"NVDA\",\"company\":\"NVIDIA\"}]" }
+variable "ingest_sources" { default = "news,reddit" }
+variable "ingest_days"    { default = 1 }
+```
 
 ---
 
@@ -131,12 +148,15 @@ The entire query pipeline is traced in LangSmith, which captures the query, retr
 
 ## Layer 5: The API
 
-`app.py` is a Flask application with two endpoints:
+`app.py` is a Flask application with three endpoints:
 
 ```
 GET  /health   → {"status": "healthy"}
+GET  /status   → {"news": {"latest": "...", "count": 398}, "social": {...}, ...}
 POST /query    → {"response": "...", "sources": [...], "retrieval": [...]}
 ```
+
+The `/status` endpoint queries Pinecone for the latest `published_at` timestamp and vector count per namespace. The frontend calls this on page load to display data freshness labels ("Updated today", "Historical") on each dataset tab.
 
 The `/query` endpoint accepts:
 ```json
@@ -147,7 +167,7 @@ The `/query` endpoint accepts:
 }
 ```
 
-On startup in Lambda, the app lazily loads API keys from AWS Secrets Manager. This is a **cold start optimization** — the keys are only fetched once per Lambda container lifecycle, not on every request.
+On startup in Lambda, the app lazily loads API keys from **AWS SSM Parameter Store** (SecureString). This is a **cold start optimization** — the keys are only fetched once per Lambda container lifecycle, not on every request. SSM was chosen over Secrets Manager because it's free — Secrets Manager costs $0.40/secret/month.
 
 CORS is enabled globally, so the API can be called from any frontend origin.
 
@@ -184,11 +204,13 @@ This means the same Flask app can run locally (`python app.py`) or inside Lambda
 All infrastructure is managed as code with Terraform:
 
 - **ECR** — Docker image registry, keeps the last 10 images, scans on push
-- **Lambda** — 1024MB memory, 120s timeout (generous for cold starts with the reranker model)
-- **API Gateway HTTP API** — catch-all route `$default` proxies everything to Lambda
-- **Secrets Manager** — stores OpenAI and Pinecone API keys
+- **Query Lambda** (`rag-application`) — 1024MB memory, 120s timeout, serves the Flask API
+- **Ingest Lambda** (`rag-application-ingest`) — 512MB memory, 300s timeout, runs the ingestion pipeline. Same Docker image, different entrypoint (`lambda_ingest_handler.handler`)
+- **API Gateway HTTP API** — catch-all route `$default` proxies everything to the query Lambda
+- **EventBridge Scheduler** — triggers the ingest Lambda daily at 6 AM UTC (2 AM ET) with a 30-minute flexible window
+- **SSM Parameter Store** — stores OpenAI, Pinecone, and Finnhub API keys as SecureString (free tier)
 - **CloudWatch Logs** — Lambda logs retained for 7 days
-- **IAM** — Lambda execution role with least-privilege access to Secrets Manager
+- **IAM** — least-privilege roles for query Lambda (SSM read), ingest Lambda (SSM read), and EventBridge scheduler (Lambda invoke)
 
 ### CI/CD (GitHub Actions)
 
@@ -285,6 +307,6 @@ Total latency on a warm Lambda: ~2-4 seconds (dominated by the OpenAI API calls)
 
 ## What's Next
 
-The current architecture handles the core RAG use case well, but there are natural next evolution points: a proper frontend, query caching for repeated questions, and expanding the ingestion pipeline to cover more tickers beyond NVIDIA.
+The current architecture is fully production-ready and running. Natural next evolution points include query caching for repeated questions, expanding the ingestion pipeline to cover more tickers beyond NVIDIA, and adding automated evaluation (RAGAS) to catch retrieval quality regressions.
 
-The foundation — containerized Lambda, Terraform-managed infrastructure, LangSmith observability, and a clean separation between ingestion and query — is solid enough to extend without a rewrite.
+The foundation — containerized Lambda, Terraform-managed infrastructure, automated daily ingestion, LangSmith observability, and a clean separation between ingestion and query — is solid enough to extend without a rewrite.
